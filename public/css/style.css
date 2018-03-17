@@ -66,8 +66,54 @@ main#editquestioncontainer{
     grid-gap: 1rem;
 }
 
+main#answercontainer{
+    
+    display: grid;
+    grid-template-columns: 100%;
+    grid-template-rows: auto;
+    grid-gap: 1rem;
+    text-align:center;
+}
+
+main#answercontainer div{
+    width:90%;
+    justify-self: center;
+    padding-top: 2rem;
+    height: 6rem;
+    font-size: 4rem;
+}
+
+#answera{
+
+    background-color: #DDDDFF;
+}
+
+#answerb{
+
+    background-color: #FFFFDD;
+}
+ 
+#answerc{
+    background-color: #DDFFDD;
+    
+}
+
+#answerd{
+    background-color: #FFDDFF
+    
+}
 @media only screen and (min-width: 480px) {
     
+    main#answercontainer{
+    
+        display: grid;
+        grid-template-columns: repeat(auto-fit, 30rem);
+    }
+    
+    main#answercontainer div{
+        justify-self: fill;
+    }
+
     header img{
 
         float:left;
