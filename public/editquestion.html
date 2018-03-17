@@ -1,0 +1,63 @@
+<!DOCTYPE html >
+<html lang="en">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+		<link rel="stylesheet" media="all" href="css/style.css" type="text/css" />
+		<title>Drumble Quiz</title>
+	</head>
+	<body>
+        
+        <header>
+            
+            <img src="images/DumbrelQuizLogo.png" alt="drumblequiz logo">
+            <h1>drumblequiz</h1>
+        
+        </header>
+
+        <main>
+
+            <section>
+                <h2>Questions</h2>
+                <ul id="questionlist">
+                    
+                    <!-- p tag: title of question; a tag: click to load info into form; checkbox: "the current room i'm logged into has these/this questions" -->
+                    <li><a>New Question</a></li>
+                    <li><p>Example title of question</p><a><img src="edit.png"></a><input type="checkbox"></li>
+                    <li><p>Why did the chicken cross the road?</p><a><img src="edit.png"></a><input type="checkbox"></li>
+
+                </ul>
+            </section>
+            
+            <section>
+                
+                <h2>Edit Selected Question</h2>
+
+                <form class="drumbleform" id="editquestionform" class="drumblequizform">
+
+                    <label for="title">Title</label>
+                    <input type="text" id="title" name="title"/>
+    
+                    <label for="question">Question</label>
+                    <input type="text" id="question" name="question"/>
+
+                    <label>Answers</label>
+                    <input type="text" id="answerainput" name="answerainput"/>
+                    <input type="checkbox" id="answeracorrect">
+                    <input type="text" id="answerbinput" name="answerbinput"/>
+                    <input type="checkbox" id="answerbcorrect">
+                    <input type="text" id="answercinput" name="answercinput"/>
+                    <input type="checkbox" id="answerccorrect">
+                    <input type="text" id="answerdinput" name="answerdinput"/>
+                    <input type="checkbox" id="answerdcorrect">
+
+                    <input id="savequestionbutton" type="submit" value="Save" />
+        
+                </form>
+
+            </section>
+
+        </main>
+        
+        <footer></footer>
+	</body>
+</html>
