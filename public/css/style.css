@@ -1,0 +1,63 @@
+html{
+
+    font-size: 62.5%;
+
+}
+
+body{
+
+    font-family: Arial, sans-serif;
+    font-size: 1.6rem;
+
+}
+
+header{
+
+    text-align: center;
+}
+
+header img {
+
+    height:10rem;
+}
+
+#loginform{
+    display: grid;
+    grid-template-columns: 100%;
+    grid-template-rows: auto;
+    grid-gap: 1rem;
+}
+
+#loginform label{
+
+    justify-self: center;
+}
+
+#loginform *{
+
+    height: 2rem;
+}
+
+@media only screen and (min-width: 480px) {
+
+    
+    header img{
+
+        float:left;
+        text-align: left;
+    }
+
+    header h1{
+        float:left;
+
+    }
+
+    main{
+        padding-top: 5rem;
+        clear:both;
+    }
+    
+    #loginform{
+        grid-template-columns: 30rem;
+    }
+}
