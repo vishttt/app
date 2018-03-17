@@ -1,0 +1,14 @@
+{
+  "name": "DrumbleWebApp",
+  "version": "0.0.1",
+  "description": "Kahoot alike app for classrooms driven by PostgreSQL",
+  "dependencies": {
+    "dotenv": "^5.0.1",
+    "express": "^4.16.3",
+    "pg": "^7.4.1",
+    "socket.io": "^2.0.4"
+  },
+  "scripts": {
+    "start": "node server.js"
+  }
+}
