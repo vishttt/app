@@ -75,9 +75,12 @@ app.use(express.static(path.join(__dirname, '/public')))
 
 // when a new client connects to the socket
 io.on('connection', (socket) => {
+    if (socket.handshake.session.user) {
+        // user is logged in, in room socket.handshake.session.room
+    }
     socket.on('message', (msg) => {
         const query = client.query('insert into foo (name) values ($1)', [msg])
-  });
+  })
 });
 
 // listen on the port, by default 3000
