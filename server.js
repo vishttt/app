@@ -48,19 +48,19 @@ app.get('/', (req, res) => {
     if (req.session.user) {
         // user is logged in
         if (req.session.user.substr(0,1) === 'u')
-            res.sendFile(__dirname + '/public/editquestion.html')
+            return res.sendFile(__dirname + '/public/editquestion.html')
         else
-            res.sendFile(__dirname + '/public/answer.html')
+            return res.sendFile(__dirname + '/public/answer.html')
     } else {
         // not logged in
-        res.sendFile(__dirname + '/public/login.html')
+        return res.sendFile(__dirname + '/public/login.html')
     }
 });
 
 app.post('/', (req, res) => {
     // if rnumber or roomnumber empty redirect back
     if (req.body.rnumber.length == 0 || req.body.roomnumber.length == 0)
-        res.redirect('/');
+        return res.redirect('/');
 
     // user logged in, set details as session
     req.session.user = req.body.rnumber
@@ -80,7 +80,7 @@ io.on('connection', (socket) => {
     }
     socket.on('message', (msg) => {
         const query = client.query('insert into foo (name) values ($1)', [msg])
-  })
+    })
 });
 
 // listen on the port, by default 3000
