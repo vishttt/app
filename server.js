@@ -6,8 +6,12 @@ const path = require('path')
 const express = require('express')
 const app = express()
 const http = require('http').Server(app)
+const bodyParser = require('body-parser')
 const io = require('socket.io')(http)
 const port = process.env.PORT || 3000
+
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({ extended: false }))
 
 const session = require('express-session')({
     secret: 'my-secret',
@@ -43,19 +47,30 @@ client.on('notification', (msg) => {
 app.get('/', (req, res) => {
     if (req.session.user) {
         // user is logged in
-        res.sendFile(__dirname + '/public/answer.html');
+        if (req.session.user.substr(0,1) === 'u')
+            res.sendFile(__dirname + '/public/editquestion.html')
+        else
+            res.sendFile(__dirname + '/public/answer.html')
     } else {
         // not logged in
-        res.sendFile(__dirname + '/public/login.html');
+        res.sendFile(__dirname + '/public/login.html')
     }
 });
 
 app.post('/', (req, res) => {
-    console.log('login', req)
+    // if rnumber or roomnumber empty redirect back
+    if (req.body.rnumber.length == 0 || req.body.roomnumber.length == 0)
+        res.redirect('/');
+
+    // user logged in, set details as session
+    req.session.user = req.body.rnumber
+    req.session.room = req.body.roomnumber
+    // and redirect to home page
+    res.redirect('/');
 });
 
 // other static files are served from the public folder
-app.use(express.static(path.join(__dirname, '/public')));
+app.use(express.static(path.join(__dirname, '/public')))
 
 
 // when a new client connects to the socket
@@ -67,5 +82,5 @@ io.on('connection', (socket) => {
 
 // listen on the port, by default 3000
 http.listen(port, () => {
-  console.log('listening on *:' + port);
+  console.log('listening on *:' + port)
 });

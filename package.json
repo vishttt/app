@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "description": "Kahoot alike app for classrooms driven by PostgreSQL",
   "dependencies": {
+    "body-parser": "^1.18.2",
     "dotenv": "^5.0.1",
     "express": "^4.16.3",
     "express-session": "^1.15.6",
