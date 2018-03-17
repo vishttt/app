@@ -6,6 +6,9 @@ require('dotenv').config()
 // connect to the PostgreSQL server
 const client = new Client({
     connectionString: process.env.DB_URI,
+    ssl : {
+        rejectUnauthorized : true
+    }
 })
 client.connect()
 
