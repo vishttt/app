@@ -3,6 +3,8 @@
 // @ << message to listen from Server
 // $ << Button actions
 // ! << Page visual change
+// % << Get from server
+
 
 List<Page>:
 1. Index
@@ -13,6 +15,9 @@ $ "Join Quiz", if  (room is NOT anonymous AND user logged In ) loads "EnterNameP
 $ "Join Quiz", if  (room is NOT anonymous AND user NOT logged In ) loads "PlayerLogInPage"
 $ "Manage Quizzes", if user logged In loads "ManageQuizzesPage"
 $ "Manage Quizzes", if user NOT logged In loads "ManagerLogInPage"
+% Ask server if "roomID" is correct
+% Ask server if room is annonymous
+% Ask server if user is logged in/session is not expired
     fields: room ID,
     buttons: Join Quiz, Manage Quizzes
 
@@ -20,8 +25,11 @@ $ "Manage Quizzes", if user NOT logged In loads "ManagerLogInPage"
 # a page where you enter your nickname and click enter
 $ "Enter", loads "WaitForGamePage"
 $ "Back", loads "IndexPage"
+$ "Log Out", Logs you out, loads "IndexPage"
+% Ask server to Log user Out
+% Ask server to add Display name and Add player to room
     fields: Nickname
-    buttons: Enter, Back
+    buttons: Enter, Back, "Log Out"
 
 3. Wait For Game
 # just a page you are in while waiting until the game starts.
@@ -33,17 +41,19 @@ $ "Answer2", do nothing
 $ "Answer3", do nothing
 $ "Answer4", do nothing
 # A page shown to user in a quiz. It lets you choose an answer.(It might indicate what answer you have chosen)
-! when an answer button is clicked, they should be deactivated
+% ask server to add your answer to DB
 @ When server sends a message "TimeEnd" it should load "RankingPage"
     buttons: Answer1, Answer2, Answer3, Answer4
 
 5. Ranking
 # a page showing your current ranking in the middle
+% ask server current palyers ranking
 @ When server sends a message "NextQuestion" it should load "AnswerUserPage"
 @ When server sends a message "QuizEnded" it should load "FinalResultsPage"
 
 6. Final Results
 # shows final results (your ranking, other top x players...)
+% ask server for result of the room
 $ "Back", loads "IndexPage"
     buttons: Back
 
@@ -51,6 +61,7 @@ $ "Back", loads "IndexPage"
 # lets player log in before the quiz
 $ "Log In", if username AND PSW INcorrect, refreshes page
 $ "Log In", if username AND PSW correct, loads "EnterNamePage"
+% ask server if log in and psw are correct and to log you in
     fields: Username, PSW
     buttons: "Log In"
 
@@ -60,17 +71,27 @@ $ "Log In", if username AND PSW INcorrect, refreshes page
 $ "Log In", if (username AND PSW correct AND user does NOT have permission), clear username/PSW fields
 $ "Log In", if (username AND PSW correct AND user has permission), loads "ManageQuizzesPage"
 ! If user logged in but didn't have permission to manage quizzes show error message "Your account does not have permission to manage quizzes"
+% ask server if log in ans psw are correct and to log you in
+% ask server if user has permission to edit quizes
     fields: Username, PSW
     buttons: "Log In"
 
 9. Manage Quizzes
 # Page showing your current quizzes in the middle in a scrollable list, which lets you select one of them. Then do action of your choice
-$ "Start", loads "StartQuizPage"
+$ "Start", loads "StartQuizPage", creates new room in db
 $ "Create", loads "EditQuizPage" with quiz new ID in it.
 $ "Edit", loads "EditQuizPage" with selected quiz ID and information
 $ "Delete", deletes selected quiz
-    fields: ChoiceList(of your quizzes)
-    buttons: "Start", "Create",  "Edit", "Delete"
+$ "Log Out", Logs you out, loads "IndexPage"
+% ask server for all your Quizzes
+% Create a room with selected quizz
+% ask server for quizz (quizz+questions+answers)
+% create quizz and get it's Id
+% delete quizz
+% ask server to log you out
+% Create new room with "New Room Id"
+    fields: ChoiceList(of your quizzes), "New Room Id"(optional)
+    buttons: "Start", "Create",  "Edit", "Delete", "Log Out"
 
 10. Edit Quiz
 # Page that lets you edit/create quizzes.
@@ -83,6 +104,9 @@ $ "Done", if infomration is correct, loads "ManageQuizzesPage"
 ! When + sign is pressed in "Questions" list, add new element to it, set it's "Time" to me equal to "Question time" field
 ! When + sing is pressed in "Answers" box, create add new element at that place
 ! quiz ID field should be NOT changable
+% ask server to update quiz (quiz itself, questions, answers) and get answer if everything is ok
+% create new question (also add it to quiz)
+% create new answer (also add it to question)
     fields: ID, Title, "Question time", Questions( scrollable list, each element with: Title, Content, Time, answers( box with 4 boxes each having: text, isCorrenct(checkBox)))
     buttons: Done, Back
 
@@ -91,6 +115,8 @@ $ "Done", if infomration is correct, loads "ManageQuizzesPage"
 $ "Back", loads "ManageQuizzesPage"
 $ "Start", loads "ShowQuestionPage"
 ! Shows current connected players list
+% Ask server to start Quiz(create first question instance)
+% Ask server for connected players to the room
 @ When server sends message "PlayerJoinded.." add player to players list and display it
     buttons: Start, Back
 
@@ -98,17 +124,26 @@ $ "Start", loads "ShowQuestionPage"
 # page that shows question, answers and time remaining (if question has time)
 $ "End", shows Correct answer, changes "End" button to "Continue" button
 $ "Continue", loads "ShowResultsPage"
+% ask server for current question+answers by roomId
+% ask server to stop question time
+% ask server for correct answer
 ! Remaining time should be updated as time passes
 ! when timer ends, shows Correct answer, changes "End" button to "Continue" button
     buttons: End/Continue
 
 13. Show Results
-# Page that shows scoreboard results in between questions
+# Page that shows scoreboard results(how many people chose what answer and who is winning) in between questions.
 $ "Next", if this was the last question, loads "VictoryPage"
 $ "Next", if this was not the last question, loads "ShowQuestionPage"
+% ask server for current question+answers by roomID
+% ask server for correct answer
+% ask server question statistics ( how many answered what)
+% ask server for overall statistics (users + points/right answers)
+% ask server if question was last
     buttons: Next
 
 14. Victory
 # Page that shows who won (highlight first 3 places), show all + points
 $ "Back", loads "IndexPage"
+% ask server for overall statistics (users + points/right answers)
     buttons: Back
