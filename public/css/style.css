@@ -65,6 +65,34 @@ main#editquestioncontainer{
 
     list-style-type: none;
 }
+ul#answers {
+    display: flex;
+    justify-content: space-between;
+    padding: 0;
+    list-style: none;
+}
+ul#answers li {
+    width: 100%;
+    text-transform: uppercase;
+    text-align: center;
+    background: #f5f6f9;
+    text-shadow: 0 2px white;
+    font-size: 4em;
+    font-weight: bold;
+    color: #b8bec5;
+    margin: 0 0.3em;
+    padding: 1em 0;
+    cursor: pointer;
+}
+ul#answers li.selected {
+    background: black;
+    color: white;
+}
+footer {
+    text-align: center;
+}
+
+@media only screen and (min-width: 480px) {
 
 #questionlist li{
     margin-bottom: 1rem;

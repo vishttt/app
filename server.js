@@ -8,6 +8,8 @@ const app = express()
 const http = require('http').Server(app)
 const bodyParser = require('body-parser')
 const io = require('socket.io')(http)
+
+const schema = process.env.DB_SCHEMA
 const port = process.env.PORT || 3000
 
 app.use(bodyParser.json())
@@ -28,17 +30,17 @@ app.use(session)
 io.use(sharedsession(session))
 
 // connect to the PostgreSQL server
-const client = new Client({
+const dbclient = new Client({
     connectionString: process.env.DB_URI,
     ssl: { rejectUnauthorized: true }
 })
-client.connect()
+dbclient.connect()
 
 // listen on all watchers
-const query = client.query('LISTEN watchers')
+const query = dbclient.query('LISTEN watchers')
 
 // when a notification comes up show in console
-client.on('notification', (msg) => {
+dbclient.on('notification', (msg) => {
     console.log(msg.payload)
     io.emit('message', msg.payload);
 });
@@ -76,10 +78,31 @@ app.use(express.static(path.join(__dirname, '/public')))
 // when a new client connects to the socket
 io.on('connection', (socket) => {
     if (socket.handshake.session.user) {
+        const roomid = socket.handshake.session.room
         // user is logged in, in room socket.handshake.session.room
+        dbclient.query(`select 
+        questioninstanceid "QuestionInstanceId", 
+        a."Id" "AnswerId",
+        a."Content" "Answer",
+        aqpr.endtime
+        from "${schema}".active_questions_per_room aqpr
+        inner join "${schema}"."Answer" a
+        on (aqpr.questioninstanceid = a."QuestionId")
+        where "RoomId" = $1`, [roomid], (err, res) => {
+            const currentAnswers = res.rows
+            if (currentAnswers.length > 0) {
+                console.log(currentAnswers)
+                socket.send(currentAnswers)
+            }
+        })
+
+        socket.on('select', (answer) => {
+            console.log('selected', answer)
+            //const query = dbclient.query('insert into foo (name) values ($1)', [msg])
+        })
     }
     socket.on('message', (msg) => {
-        const query = client.query('insert into foo (name) values ($1)', [msg])
+        const query = dbclient.query('insert into foo (name) values ($1)', [msg])
     })
 });
 
