@@ -81,6 +81,29 @@ io.on('connection', (socket) => {
     socket.on('message', (msg) => {
         const query = client.query('insert into foo (name) values ($1)', [msg])
     })
+    socket.on('addQuestion', (msg) => {
+        // Add question
+        client.query('BEGIN');
+        let questionId;
+        client.query(
+            'INSERT INTO "r0729373-drumblequiz"."Question"("Title", "Content", "Time") VALUES ($1, $2, $3) RETURNING "Id"',
+            [msg.title, msg.question, msg.time]).then(res => {
+
+                client.query('INSERT INTO "r0729373-drumblequiz"."Answer"("QuestionId", "Content", "IsCorrect") VALUES ($1, $2, $3)',
+                    [res.rows[0].Id, msg.answer1, msg.answer1IsTrue]).catch(e => console.error(e.stack));
+
+                client.query('INSERT INTO "r0729373-drumblequiz"."Answer"("QuestionId", "Content", "IsCorrect") VALUES ($1, $2, $3)',
+                    [res.rows[0].Id, msg.answer2, msg.answer2IsTrue]).catch(e => console.error(e.stack));
+
+                client.query('INSERT INTO "r0729373-drumblequiz"."Answer"("QuestionId", "Content", "IsCorrect") VALUES ($1, $2, $3)',
+                    [res.rows[0].Id, msg.answer3, msg.answer3IsTrue]).catch(e => console.error(e.stack));
+
+                client.query('INSERT INTO "r0729373-drumblequiz"."Answer"("QuestionId", "Content", "IsCorrect") VALUES ($1, $2, $3)',
+                    [res.rows[0].Id, msg.answer4, msg.answer4IsTrue]).catch(e => console.error(e.stack));
+
+              }).catch(e => console.error(e.stack));
+        client.query('COMMIT');
+    })
 });
 
 // listen on the port, by default 3000
