@@ -16,13 +16,43 @@
 
         <main id="answercontainer">
 
-            <div id="answera">A</div>
-            <div id="answerb">B</div>
-            <div id="answerc">C</div>
-            <div id="answerd">D</div>
+            <ul id="answers"></ul>
 
         </main>
         
-        <footer></footer>
+        <footer>ends <span id="timeLeft"></span> (<span id="timeLeftSeconds"></span> seconds)</footer>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.21.0/moment-with-locales.min.js"></script>
+    <script>
+      $(function () {
+        var socket = io();
+        socket.on('message', function(questions){
+            console.log('question', questions)
+            var $answers = $('#answers').html('')
+            questions.forEach(function(question, index){
+                $answers.append(
+                    $('<li>')
+                        .text(String.fromCharCode(97 + index)) // 0->a, 1->b...
+                        .click(function() {
+                            console.log('selected', question)
+                            $('#answers>li').removeClass('selected')
+                            $(this).addClass('selected')
+                            socket.emit('select', question)
+                        })
+                );
+            })
+            var endTime = questions[0].endtime
+            setInterval(function(){
+                // time in readable format
+                $('#timeLeft').text(moment(endTime).fromNow())
+                // time in seconds
+                $('#timeLeftSeconds').text(
+                    moment(endTime).diff(moment(), 'seconds')
+                )
+            }, 1000)
+        })
+      })
+    </script>
 	</body>
 </html>
