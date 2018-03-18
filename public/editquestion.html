@@ -1,97 +1,96 @@
 <!DOCTYPE html >
 <html lang="en">
-	<head>
-		<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
-		<link rel="stylesheet" media="all" href="css/style.css" type="text/css" />
-		<title>Drumble Quiz</title>
-	</head>
-	<body>
 
-        <header>
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  <link rel="stylesheet" media="all" href="css/style.css" type="text/css" />
+  <title>Drumble Quiz</title>
+</head>
 
-            <img src="images/DumbrelQuizLogo.png" alt="drumblequiz logo">
-            <h1>drumblequiz</h1>
+<body>
 
-        </header>
+  <header>
 
-        <main id="editquestioncontainer">
+    <img src="images/DumbrelQuizLogo.png" alt="drumblequiz logo">
+    <h1>drumblequiz</h1>
 
-            <section>
-                <h2>Questions</h2>
-                <ul id="questionlist">
+  </header>
 
-                    <!-- p tag: title of question; a tag: click to load info into form; checkbox: "the current room i'm logged into has these/this questions" -->
-                    <li><a href="#">New Question</a></li>
-                    <li><p>Example title of question</p><a href="#"><img src="images/edit.png"></a><input type="checkbox"></li>
-                    <li><p>Why did the chicken cross the road?</p><a href="#"><img src="images/edit.png"></a><input type="checkbox"></li>
+  <main id="editquestioncontainer">
 
-                </ul>
-            </section>
+    <section>
+      <h2>Questions</h2>
+      <ul id="questionlist">
 
-            <section>
+        <!-- p tag: title of question; a tag: click to load info into form; checkbox: "the current room i'm logged into has these/this questions" -->
+        <li>
+          <a href="#">New Question</a>
+        </li>
+        <li>
+          <p>Example title of question</p>
+          <a href="#">
+            <img src="images/edit.png">
+          </a>
+          <input type="checkbox">
+        </li>
+        <li>
+          <p>Why did the chicken cross the road?</p>
+          <a href="#">
+            <img src="images/edit.png">
+          </a>
+          <input type="checkbox">
+        </li>
 
-                <h2>Edit Selected Question</h2>
+      </ul>
+    </section>
 
-                <form class="drumbleform" id="editquestionform" class="drumblequizform">
+    <section>
 
-                    <label for="title">Title</label>
-                    <input type="text" id="title" name="title"/>
+      <h2>Edit Selected Question</h2>
 
-                    <label for="question">Question</label>
-                    <input type="text" id="question" name="question"/>
+      <form class="drumbleform" id="editquestionform" class="drumblequizform">
 
-                    <label>Answers</label>
-                    <input type="text" id="answerinput1"/>
-                    <input type="checkbox" id="answercorrect1">
-                    <input type="text" id="answerinput2"/>
-                    <input type="checkbox" id="answercorrect2">
-                    <input type="text" id="answerinput3" />
-                    <input type="checkbox" id="answercorrect3">
-                    <input type="text" id="answerinput4" />
-                    <input type="checkbox" id="answercorrect4">
+        <label for="title">Title</label>
+        <input type="text" id="title" name="title" />
 
-                    <input id="savequestionbutton" type="submit" value="Save" />
+        <label for="question">Question</label>
+        <input type="text" id="question" name="question" />
 
-                </form>
+        <label>Answers</label>
+        <input name="answer1" type="text" />
+        <input name="answer1IsTrue" type="checkbox" />
+        <input name="answer2" type="text" />
+        <input name="answer2IsTrue" type="checkbox" />
+        <input name="answer3" type="text" />
+        <input name="answer3IsTrue" type="checkbox" />
+        <input name="answer4" type="text" />
+        <input name="answer4IsTrue" type="checkbox" />
 
-            </section>
+        <input id="savequestionbutton" type="submit" value="Save" />
 
-						<script src="/socket.io/socket.io.js"></script>
-				    <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
-				    <script>
-				      $(function () {
-					        var socket = io();
-					        $('form').submit(function(){
-											//console.log($('#answerainput1').val());
-						          socket.emit('addQuestion', { title: $('#title').val(),
-																									 question: $('#question').val(),
-																									 answer1: $('#answerinput1').val(),
-																									 answer2: $('#answerinput2').val(),
-																									 answer3: $('#answerinput3').val(),
-																									 answer4: $('#answerinput4').val(),
-																									 answer1IsTrue: $('#answercorrect1').is(":checked"),
-																									 answer2IsTrue: $('#answercorrect2').is(":checked"),
-																									 answer3IsTrue: $('#answercorrect3').is(":checked"),
-																									 answer4IsTrue: $('#answercorrect4').is(":checked"),
-																									 time: 20
-																								  });
-											$('#title').val("");
-											$('#question').val("");
-											$('#answerinput1').val("");
-											$('#answerinput2').val("");
-											$('#answerinput3').val("");
-											$('#answerinput4').val("");
-											$('#answercorrect1').is(":checked").prop('checked', false);
-											$('#answercorrect2').is(":checked").prop('checked', false);
-											$('#answercorrect3').is(":checked").prop('checked', false);
-											$('#answercorrect4').is(":checked").prop('checked', false);
-						          return false;
-					        });
-				      });
-				    </script>
+      </form>
+    </section>
+  </main>
 
-        </main>
-
-        <footer></footer>
-	</body>
+  <footer></footer>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+    <script>
+      $(function () {
+        var socket = io();
+        $('form').submit(function () {
+          socket.emit('addQuestion',
+            $('form')
+            .serializeArray()
+            .reduce(function (p, c) { 
+              p[c.name] = c.value; 
+              return p; 
+            }, { time: 20 })
+          );
+          $(this)[0].reset();
+          return false;
+        });
+      });
+    </script>
+    </body>
 </html>
