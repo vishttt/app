@@ -78,10 +78,14 @@ app.use(express.static(path.join(__dirname, '/public')))
 // when a new client connects to the socket
 io.on('connection', (socket) => {
     if (socket.handshake.session.user) {
+        // user is logged in
         const roomid = socket.handshake.session.room
         // user is logged in, in room socket.handshake.session.room
-        dbclient.query(`select
-        questioninstanceid "QuestionInstanceId",
+        const userid = socket.handshake.session.user
+
+        // select the current active question, and the answers for that question
+        dbclient.query(`select 
+        questioninstanceid "QuestionInstanceId", 
         a."Id" "AnswerId",
         a."Content" "Answer",
         aqpr.endtime
@@ -91,14 +95,18 @@ io.on('connection', (socket) => {
         where "RoomId" = $1`, [roomid], (err, res) => {
             const currentAnswers = res.rows
             if (currentAnswers.length > 0) {
-                console.log(currentAnswers)
+                // and send them to the user if there are any
                 socket.send(currentAnswers)
             }
         })
 
         socket.on('select', (answer) => {
-            console.log('selected', answer)
-            //const query = dbclient.query('insert into foo (name) values ($1)', [msg])
+            // when a user selects an answer
+            const query = dbclient.query(`insert into "${schema}"."AnswerInstance" ("QuestionInstanceId", "AnswerId", "StudentId") values ($1, $2, $3)`, [
+                answer.QuestionInstanceId,
+                answer.AnswerId,
+                userid
+            ])
         })
     }
     socket.on('message', (msg) => {
