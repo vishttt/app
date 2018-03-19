@@ -1,0 +1,119 @@
+<!DOCTYPE html >
+<html lang="en">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+		<link rel="stylesheet" media="all" href="css/style.css" type="text/css" />
+		<title>Drumble Quiz</title>
+	</head>
+	<body>
+        
+        <header>
+            
+            <img src="images/DumbrelQuizLogo.png" alt="drumblequiz logo">
+            <h1>drumblequiz</h1>
+        
+        </header>
+
+        <main>
+
+            <form class="drumbleform" id="editquizform" class="drumblequizform" method="post" action="/">
+                
+                <section>
+
+                    <input type="submit" value="Back" />
+                    <input type="submit" value="Done" />
+
+                </section>
+
+                <section>
+                    
+                    <label for="quizid">Id</label>
+                    <input type="text" id="quizid" name="quizid"/>
+
+                    <label for="quiztime">Time</label>
+                    <input type="text" id="quiztime" name="quiztime"/>
+
+                </section>
+
+                <section>
+
+                    <label for="quiztitle">Title</label>
+                    <input type="text" id="quiztitle" name="quiztitle"/>
+
+                </section>
+
+                <section>
+                    <h2>Questions</h2>
+
+                    <div class="questioncontainer">
+                        
+                        <section>
+
+                            <label for="questiontitle">Title</label>
+                            <input type="text" id="questiontitle" name="questiontitle"/>
+        
+                            <label for="questiontime">Time</label>
+                            <input type="text" id="questiontime" name="questiontime"/>
+
+                        </section>
+
+                        <section>
+                            
+                                <label for="questioncontent">Question</label>
+                                <input type="text" id="questioncontent" name="questioncontent"/>
+                            
+                        </section>
+
+                        <section id="answercontainer">
+
+                            <div class="answer">
+                                
+                                <label for="answeracontent">Answer</label>
+                                <input type="text" id="answeracontent" name="answeracontent"/>
+                                
+                                <input type="checkbox" />
+
+                            </div>
+
+                            <div class="answer">
+                                
+                                <label for="answerbcontent">Answer</label>
+                                <input type="text" id="answerbcontent" name="answerbcontent"/>
+    
+                                <input type="checkbox" />
+
+                            </div>
+
+                            <div class="answer">
+                            
+                                <label for="answerccontent">Answer</label>
+                                <input type="text" id="answerccontent" name="answerccontent"/>
+
+                                <input type="checkbox" />
+
+                            </div>
+
+                            <div class="answer">
+                        
+                                <label for="answerdcontent">Answer</label>
+                                <input type= id="answerdcontent" name="answerdcontent"/>
+
+                                <input type="checkbox" />
+
+                            </div>
+
+                        </section>
+
+                    </div><!-- /questioncontainer -->
+
+                </section>                
+                
+                <a href="#">New Question</a>
+
+            </form>
+
+        </main>
+        
+        <footer></footer>
+	</body>
+</html>

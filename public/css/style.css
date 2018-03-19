@@ -147,7 +147,32 @@ header img {
 }
 
 /* 
- * FINAL RESULTS PAGE (responsive, no mediaquery changes)
+ * SHOW RESULTS PAGE (not responsive)
+ * 
+ */
+
+#tempresultscontainer{
+
+    display:grid;
+    grid-template-columns: repeat(auto-fit,30rem);
+    grid-template-rows: auto;
+    grid-gap: 1rem;
+}
+
+#tempresultscontainer > *{
+
+    background-color: #DDDDFF;
+    padding-left:3rem;
+    padding-right: 3rem;
+}
+
+#showresultsnext{
+
+    padding-top: 3rem;
+}
+
+/* 
+ * FINAL RESULTS PAGE (not responsive)
  * 
  */
  
@@ -173,8 +198,59 @@ header img {
 }
 
 /* 
- * EDIT QUESTION PAGE (not responsive)
+ * EDIT QUIZ PAGE (not responsive)
  * 
+ */
+
+#editquizform{
+
+    display: grid;
+    grid-template-columns: 100%;
+    grid-template-rows: auto;
+    grid-gap: 3rem;
+}
+
+#editquizform > section{
+
+    width: fit-content;
+    display:grid;
+    grid-template-columns: 100%;
+    grid-template-rows: auto;
+    grid-gap:0.5rem;
+}
+
+.questioncontainer{
+
+    border: 1px solid black;
+    padding: 2rem;
+}
+
+.questioncontainer  section{
+
+    display:grid;
+    grid-template-columns: 100%;
+    grid-template-rows: auto;
+    grid-gap: 1rem;
+}
+
+#answercontainer{
+
+    margin-top: 3rem;
+}
+
+/* 
+ * START QUIZ PAGE (not responsive)
+ * 
+ */
+
+#startquizcontainer > *{
+
+    margin: 2rem;
+}
+ 
+/* 
+ * EDIT QUESTION PAGE (not responsive)
+ * (deprecated page, delete later)
  */
 
 main#editquestioncontainer{
@@ -231,6 +307,7 @@ footer {
     grid-template-rows: auto;
     grid-gap: 1rem;
 }
+
 
 
 /* 
