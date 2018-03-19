@@ -29,6 +29,51 @@ header img {
 }
 
 /* 
+ * INDEX PAGE (responsive elements, see mediaquery)
+ * 
+ */
+
+#roomform{
+    display: grid;
+    grid-template-columns: 100%;
+    grid-template-rows: auto;
+    grid-gap: 1rem;
+}
+
+#roomform label{
+
+    justify-self: center;
+}
+
+#roomform *{
+
+    height: 2rem;
+}
+
+
+/* 
+ * ENTERNAME PAGE (responsive elements, see mediaquery)
+ * 
+ */
+
+#enternameform{
+    display: grid;
+    grid-template-columns: 100%;
+    grid-template-rows: auto;
+    grid-gap: 1rem;
+}
+
+#enternameform label{
+
+    justify-self: center;
+}
+
+#enternameform *{
+
+    height: 2rem;
+}
+
+/* 
  * LOGIN PAGE (responsive elements, see mediaquery)
  * 
  */
@@ -48,6 +93,83 @@ header img {
 #loginform *{
 
     height: 2rem;
+}
+
+/* 
+ * WAIT PAGE (responsive, no mediaquery changes)
+ * 
+ */
+
+/* used code from https://atomiks.github.io/30-seconds-of-css/ */
+
+@keyframes bouncing-loader {
+    from {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    to {
+      opacity: 0.1;
+      transform: translateY(-1rem);
+    }
+  }
+  .bouncing-loader {
+    display: flex;
+    justify-content: center;
+  }
+  .bouncing-loader > div {
+    width: 1rem;
+    height: 1rem;
+    margin: 3rem 0.2rem;
+    background: #8385aa;
+    border-radius: 50%;
+    animation: bouncing-loader 0.6s infinite alternate;
+  }
+  .bouncing-loader > div:nth-child(2) {
+    animation-delay: 0.2s;
+  }
+  .bouncing-loader > div:nth-child(3) {
+    animation-delay: 0.4s;
+  }
+
+/* 
+ * RANKING PAGE (responsive, no mediaquery changes)
+ * 
+ */
+
+#rankingcontainer{
+
+    text-align: center;
+}
+
+#rankingcontainer div{
+
+    font-size: 8rem;
+}
+
+/* 
+ * FINAL RESULTS PAGE (responsive, no mediaquery changes)
+ * 
+ */
+ 
+#resultscontainer{
+ 
+     text-align: center;
+}
+
+#resultscontainer h2{
+
+    margin-bottom: 4rem;
+}
+
+#resultscontainer div img{
+
+    height: 5rem;
+}
+
+#resultscontainer div p{
+
+    font-size: 2rem;
+    padding-bottom: 2rem;
 }
 
 /* 
@@ -93,8 +215,6 @@ footer {
     text-align: center;
 }
 
-@media only screen and (min-width: 480px) {
-
 #questionlist li{
     margin-bottom: 1rem;
 }
@@ -111,6 +231,7 @@ footer {
     grid-template-rows: auto;
     grid-gap: 1rem;
 }
+
 
 /* 
  * ANSWER PAGE (responsive elements, see mediaquery)
@@ -238,6 +359,8 @@ main#questioncontainer input{
     
 }
 
+/* ///////////////// MEDIAQUERY STARTS HERE ///////////////// */
+
 @media only screen and (min-width: 480px) {
     
     /*
@@ -269,6 +392,14 @@ main#questioncontainer input{
     }
     
     #loginform{
+        grid-template-columns: 30rem;
+    }
+
+    #roomform{
+        grid-template-columns: 30rem;
+    }
+
+    #enternameform{
         grid-template-columns: 30rem;
     }
 }
