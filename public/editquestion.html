@@ -57,14 +57,14 @@
         <input type="text" id="question" name="question" />
 
         <label>Answers</label>
-        <input name="answer1" type="text" />
-        <input name="answer1IsTrue" type="checkbox" />
-        <input name="answer2" type="text" />
-        <input name="answer2IsTrue" type="checkbox" />
-        <input name="answer3" type="text" />
-        <input name="answer3IsTrue" type="checkbox" />
-        <input name="answer4" type="text" />
-        <input name="answer4IsTrue" type="checkbox" />
+        <input name="answer1" id="answer1" type="text" />
+        <input name="answer1IsTrue" id="answer1IsTrue" type="checkbox" />
+        <input name="answer2"  id="answer2" type="text" />
+        <input name="answer2IsTrue" id="answer2IsTrue" type="checkbox" />
+        <input name="answer3"  id="answer3" type="text" />
+        <input name="answer3IsTrue" id="answer3IsTrue" type="checkbox" />
+        <input name="answer4" id="answer4" type="text" />
+        <input name="answer4IsTrue" id="answer4IsTrue" type="checkbox" />
 
         <input id="savequestionbutton" type="submit" value="Save" />
 
@@ -79,14 +79,27 @@
       $(function () {
         var socket = io();
         $('form').submit(function () {
-          socket.emit('addQuestion',
+        /*  socket.emit('addQuestion',
             $('form')
             .serializeArray()
-            .reduce(function (p, c) { 
-              p[c.name] = c.value; 
-              return p; 
+            .reduce(function (p, c) {
+              p[c.name] = c.value;
+              return p;
             }, { time: 20 })
-          );
+          );*/
+
+					socket.emit('addQuestion', { title: $('#title').val(),
+														 question: $('#question').val(),
+														 answer1: $('#answer1').val(),
+														 answer2: $('#answer2').val(),
+														 answer3: $('#answer3').val(),
+														 answer4: $('#answer4').val(),
+														 answer1IsTrue: $('#answer1IsTrue').is(":checked"),
+														 answer2IsTrue: $('#answer2IsTrue').is(":checked"),
+														 answer3IsTrue: $('#answer3IsTrue').is(":checked"),
+														 answer4IsTrue: $('#answer4IsTrue').is(":checked"),
+														 time: 20
+														});
           $(this)[0].reset();
           return false;
         });

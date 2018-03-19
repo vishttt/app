@@ -84,12 +84,11 @@ $ "Edit", loads "EditQuizPage" with selected quiz ID and information
 $ "Delete", deletes selected quiz
 $ "Log Out", Logs you out, loads "IndexPage"
 % ask server for all your Quizzes
-% Create a room with selected quizz
 % ask server for quizz (quizz+questions+answers)
 % create quizz and get it's Id
 % delete quizz
 % ask server to log you out
-% Create new room with "New Room Id"
+% Create new room of selected quizz, with "New Room Id"
     fields: ChoiceList(of your quizzes), "New Room Id"(optional)
     buttons: "Start", "Create",  "Edit", "Delete", "Log Out"
 
