@@ -141,7 +141,272 @@ io.on('connection', (socket) => {
         console.log(response);
     });
 
+    socket.on('JoinRoom', (msg) => {
+      Queries.IsRoomActive(msg.Id).then( (result) =>
+      {
+          if ( result === true)
+          {
+              SetCurrentRoomId(msg.Id);
+              Queries.IsRoomAnonymous(msg.Id).then( (result2) =>
+              {
+                  if (result2 === true)
+                  {
+                      socket.emit('LoadEnterNamePage', {roomId: GetCurrentRoomId()});
+                  }
+                  else
+                  {
+                      if (IsUserLoggedIn() === true)
+                      {
+                          socket.emit('LoadEnterNamePage', {roomId: GetCurrentRoomId()});
+                      }
+                      else
+                      {
+                          socket.emit('LoadLogInPage', {});
+                      }
+                  }
+              })
+          }
+      });
+    });
+
+    socket.on('GetRoomId', (msg) =>
+    {
+        socket.emit('CurrentRoomId', {roomId: GetCurrentRoomId()});
+    });
+
+    socket.on('GetRoomResults', (msg) =>
+    {
+        Queries.GetRoomResults(GetCurrentRoomId()).then( (result) =>
+        {
+            console.log(result.rows);
+            socket.emit('RoomResults', {userinstancesId: GetCurrentUserInstanceId(),
+                                        results: result });
+        });
+    });
+
+    socket.on('GetLastQuestionStats', (msg) =>
+    {
+        Queries.GetLastQuestionStatistics(GetCurrentRoomId()).then( (result) =>
+        {
+            socket.emit('LastQuestionStats', { stats: result});
+        });
+    });
+
+    socket.on('CreateRoom', (msg) =>
+    {
+        Queries.CreateRoom(msg.roomId, msg.quizId).then( (result) =>
+        {
+            if ( result === true)
+            {
+                SetCurrentRoomId(msg.roomId);
+                socket.emit('LoadStartQuizPage', {});
+            }
+            else
+            {
+                socket.emit('Error', {message: "Room ID already exists"});
+            }
+        });
+    });
+
+    socket.on('StopQuestionTime', (msg) =>
+    {
+        Queries.GetLastQuestionId(GetCurrentRoomId()).then( (result) =>
+      {
+          Queries.StopQuestionTime(result).then( (result2) =>
+          {
+              socket.emit('QuestionStopped', {question: result });
+          });
+      })
+    });
+
+    socket.on('StartQuiz', (msg) =>
+    {
+        Queries.CreateQuestionInstance(GetCurrentRoomId()).then( (result) =>
+        {
+            socket.emit('LoadShowQuestionPage', {question: result });
+        });
+    });
+
+    socket.on('GetCurrentQuestion', (msg) =>
+    {
+        Queries.GetQuestionInstance(GetCurrentRoomId()).then( (result) =>
+        {
+            socket.emit('CurrentQuestion', {question: result });
+        });
+    });
+
+    socket.on('GetCurrentRanking', (msg) =>
+    {
+        Queries.GetCurrentRanking(GetCurrentUserInstanceId()).then( (result) =>
+        {
+            socket.emit('CurrentRanking', {place: result });
+        });
+    });
+
+    socket.on('CreateUserInstance', (msg) =>
+    {
+        Queries.CreateUserInstance(GetCurrentRoomId(), msg.nickname).then( (result) =>
+        {
+            SetCurrentUserInstanceId(result);
+            socket.emit('LoadWaintForGamePage', { roomId: GetCurrentRoomId() });
+        });
+    });
+
+    socket.on('QuestionsRemaining', (msg) =>
+    {
+        Queries.GetRemainingQuestionCount(GetCurrentRoomId()).then( (result) =>
+        {
+            socket.emit('LoadWaintForGamePage', { amount: result });
+        });
+    });
+
+    socket.on('CurrentlyConnectedUsers', (msg) =>
+    {
+        Queries.GetConnectedUsers(GetCurrentRoomId()).then( (result) =>
+        {
+            socket.emit('CurrentlyConnectedUsers', { Users: result });
+        });
+    });
+
+    socket.on('LogOut', (msg) =>
+    {
+        LogOutUser();
+        socket.emit('LoggedOutSuccessfully', {  });
+    });
+
+    socket.on('IsLoggedIn', (msg) =>
+    {
+        socket.emit('LoggedStatus', { status: IsUserLoggedIn() });
+    });
+
+    socket.on('LogIn', (msg) =>
+    {
+        Queries.DoesAccountExist(msg.ID, msg.PSW).then( (result) =>
+        {
+            if (result === true)
+            {
+                LogInUser(msg.ID);
+            }
+            socket.emit('LoggedStatus', { status: IsUserLoggedIn() });
+        });
+    });
+
+    socket.on('CanEditQuizzes', (msg) =>
+    {
+        if (IsUserLoggedIn() === true)
+        {
+          Queries.CanEditQuizzes(GetLoggedUserId()).then( (result) =>
+          {
+              if (result === true)
+              {
+                  socket.emit('EditQuizzesStatus', { status: true });
+              }
+          });
+        }
+        else
+        {
+            socket.emit('LoggedStatus', { status: IsUserLoggedIn() });
+        }
+    });
+
+    socket.on('GetAllQuizzes', (msg) =>
+    {
+        if (IsUserLoggedIn() === true)
+        {
+            Queries.GetAllQuizzes(GetLoggedUserId()).then( (result) =>
+            {
+                socket.emit('QuizList', { quizList: result });
+            });
+        }
+    });
+
+    socket.on('AskForQuiz', (msg) =>
+    {
+        Queries.GetQuizInfo(msg.Id).then( (result) =>
+        {
+            socket.emit('QuizInfo', { quizInfo: result });
+        });
+    });
+
+    socket.on('CreateQuiz', (msg) =>
+    {
+        Queries.CreateQuiz().then( (result) =>
+        {
+            socket.emit('QuizCreated', { Id: result });
+        });
+    });
+
+    socket.on('DeleteQuiz', (msg) =>
+    {
+        Queries.DeleteQuiz(msg.Id).then( (result) =>
+        {
+            socket.emit('QuizDeleted', { });
+        });
+    });
+
+    socket.on('AskForAnswer', (msg) =>
+    {
+        Queries.GetCurrentQuestion(GetRoomId()).then( (result) =>
+        {
+            Queries.GetCorrectAnswer(result.Id).then( (result2) =>
+            {
+                socket.emit('CorrectAnswer', { answer: result2 });
+            });
+        });
+    });
+
+    socket.on('UpdateQuiz', (msg) =>
+    {
+        Queries.UpdateQuiz(/*millions of info*/).then( (result) =>
+        {
+            socket.emit('QuizUpdated', { });
+        });
+    });
+
 });
+
+function SetCurrentRoomId(Id)
+{
+    // TO DO set user's roomID
+}
+
+function GetCurrentRoomId()
+{
+    // TO DO get user's roomID
+    return "M9SKLBS";
+}
+
+function SetCurrentUserInstanceId(Id)
+{
+    // TO DO set userinstancesId
+}
+
+function GetCurrentUserInstanceId()
+{
+    // TO DO get UserinstancesID
+    return 5;
+}
+
+function IsUserLoggedIn()
+{
+    // TO DO check if user logged in
+    return true;
+}
+
+function LogInUser(Id)
+{
+    // log in user
+}
+
+function LogOutUser()
+{
+    // log out user
+}
+
+function GetLoggedUserId()
+{
+    return 11;
+}
 
 // listen on the port, by default 3000
 http.listen(port, () => {

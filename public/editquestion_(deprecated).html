@@ -88,7 +88,7 @@
             }, { time: 20 })
           );*/
 
-					socket.emit('addQuestion', { title: $('#title').val(),
+					/*socket.emit('addQuestion', { title: $('#title').val(),
 														 question: $('#question').val(),
 														 answer1: $('#answer1').val(),
 														 answer2: $('#answer2').val(),
@@ -99,7 +99,8 @@
 														 answer3IsTrue: $('#answer3IsTrue').is(":checked"),
 														 answer4IsTrue: $('#answer4IsTrue').is(":checked"),
 														 time: 20
-														});
+													 });*/
+					socket.emit('GetRoomResults', {Id: $('#title').val()});				
           $(this)[0].reset();
           return false;
         });
