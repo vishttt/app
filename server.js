@@ -116,8 +116,11 @@ io.on('connection', (socket) => {
     })
 
     socket.on('addQuestion', (msg) => {
-        let response = Queries.AddQuestion(msg.title, msg.question, msg.time, msg.answer1, msg.answer1IsTrue,
-        msg.answer2, msg.answer2IsTrue,msg.answer3, msg.answer3IsTrue,msg.answer4, msg.answer5IsTrue);
+        let response = Queries.AddQuestion(msg.title, msg.question, msg.time, msg.quizId, msg.orderId,
+           [{answer: msg.answer1, answerIsTrue: msg.answer1IsTrue},
+           {answer: msg.answer2, answerIsTrue: msg.answer2IsTrue},
+           {answer: msg.answer3, answerIsTrue: msg.answer3IsTrue},
+           {answer: msg.answer4, answerIsTrue: msg.answer4IsTrue}]);
         console.log(response);
     });
 
@@ -330,7 +333,7 @@ io.on('connection', (socket) => {
 
     socket.on('CreateQuiz', (msg) =>
     {
-        Queries.CreateQuiz().then( (result) =>
+        Queries.CreateEmptyQuiz(GetLoggedUserId()).then( (result) =>
         {
             socket.emit('QuizCreated', { Id: result });
         });
@@ -357,10 +360,69 @@ io.on('connection', (socket) => {
 
     socket.on('UpdateQuiz', (msg) =>
     {
-        Queries.UpdateQuiz(/*millions of info*/).then( (result) =>
+        Queries.UpdateQuiz(msg.Id,msg.name, msg.isAnonymous).then( (result) =>
         {
             socket.emit('QuizUpdated', { });
         });
+    });
+
+    // For testing purposes
+    socket.on('TestFunction', (msg) =>
+    {
+      /*
+      Queries.AddQuestion('testQ', 'whatisTest', 20, 'quizId', 1, [{answer: 'dunno', answerIsTrue: false}, {answer: 'yukno', answerIsTrue: true} ]).then( (result) =>
+      {
+          console.log(result);
+      });
+
+      Queries.EditQuestion(Id, 'newTitle', 'lalala', 15).then( (result) =>
+      {
+          console.log(result);
+      });
+
+      Queries.UpdateQuiz().then( (result) =>
+      {
+          console.log(result);
+      });
+
+      Queries.UpdateQuiz().then( (result) =>
+      {
+          console.log(result);
+      });
+
+      Queries.UpdateQuiz().then( (result) =>
+      {
+          console.log(result);
+      });
+
+      Queries.UpdateQuiz().then( (result) =>
+      {
+          console.log(result);
+      });
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     });
 
 });
