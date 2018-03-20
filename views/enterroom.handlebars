@@ -1,0 +1,14 @@
+<main>
+  <form class="drumbleform" id="enternameform" class="drumblequizform" method="post" action="/enterroom">
+
+    <label for="roomid">Room Id</label>
+    <input type="text" id="roomid" name="roomid" />
+
+    <input id="namebutton" type="submit" value="Enter" />
+
+  </form>
+  {{#if user}}
+  <a href="/manage">manage quizes</a>
+  {{/if}}
+</main>
+<footer></footer>

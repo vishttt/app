@@ -1,0 +1,20 @@
+<main>
+  <form class="drumbleform" id="loginform" class="drumblequizform" method="post" action="/login">
+
+    <label for="rnumber">Username</label>
+    <input type="text" id="rnumber" name="username" placeholder="r0296766" />
+
+    <label for="password">Password</label>
+    <input type="text" id="password" name="password" />
+
+    <input id="loginbutton" type="submit" value="Log in" />
+    
+    {{#if message}}
+    <p>{{message}}</p>
+    {{/if}}
+
+  </form>
+
+</main>
+
+<footer></footer>

@@ -1,0 +1,78 @@
+<main>
+
+  <div class="bouncing-loader" id="wait">
+    <div></div>
+    <div></div>
+    <div></div>
+  </div>
+  <div id="answercontainer">
+    <ul id="answers">
+      <li>a</li>
+      <li>b</li>
+    </ul>
+  </div>
+</main>
+
+<footer>
+  <div id="timer">
+  ends
+  <span id="timeLeft"></span> (
+  <span id="timeLeftSeconds"></span> seconds)
+  </div>
+  <div id="name">
+  Quiz: DB trivia
+  </div>
+  <div id="leave">
+    <form action="/leave" method="post">
+      <input type="submit" value="leave">
+    </form>
+  </div>
+</footer>
+<style>
+  #answercontainer {
+    display: none;
+  }
+  /*#timer { display: none }*/
+  footer {
+    position: absolute;
+    bottom: 0;
+    left: 0; right: 0;
+    background: #9dadcf;
+    color: white;
+    padding: 1em 0;
+    display: flex;
+    justify-content: space-around;
+  }
+  footer #timer { }
+  footer #leave { }
+</style>
+<script>
+  $(function () {
+    var socket = io();
+    socket.on('message', function (questions) {
+      console.log('question', questions)
+      var $answers = $('#answers').html('')
+      questions.forEach(function (question, index) {
+        $answers.append(
+          $('<li>')
+            .text(String.fromCharCode(97 + index)) // 0->a, 1->b...
+            .click(function () {
+              console.log('selected', question)
+              $('#answers>li').removeClass('selected')
+              $(this).addClass('selected')
+              socket.emit('select', question)
+            })
+        );
+      })
+      var endTime = questions[0].endtime
+      setInterval(function () {
+        // time in readable format
+        $('#timeLeft').text(moment(endTime).fromNow())
+        // time in seconds
+        $('#timeLeftSeconds').text(
+          moment(endTime).diff(moment(), 'seconds')
+        )
+      }, 1000)
+    })
+  })
+</script>

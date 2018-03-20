@@ -86,11 +86,8 @@ let dbclient;
             }
         },
 
-        IsRoomActive: async function(Id)
-        {
-            if ((Id || Id === 0) )
-            {
-                return dbclient.query(`SELECT subq1.expected > subq2.ended OR (subq2 IS NULL AND subq1.expected > 0) OR subq1 IS NULL as active
+        IsRoomActive: async function(Id) {
+          const res = await dbclient.query(`SELECT subq1.expected > subq2.ended OR (subq2 IS NULL AND subq1.expected > 0) OR subq1 IS NULL as active
                                              FROM (SELECT rm."Id" as roomid, count(*) as expected
                                            	 FROM "${schema}"."Room" as rm,
                                           	 "${schema}"."QuizQuestion" as qq
@@ -100,14 +97,11 @@ let dbclient;
                                           	 FROM "${schema}".room_ended_questions AS ended
                                           	 GROUP BY ended."RoomId") AS subq2 ON subq2.roomid = subq1.roomid
                                           	 WHERE subq1.roomid = $1`,
-                                [Id]).then(res => {
-                  if (typeof res.rows[0].active !== 'undefined' && res.rows[0].active === true)
-                  {
-                      return true;
-                  }
-                  return false;
-                }).catch(e => {console.error(e.stack);});
-            }
+                                [Id])
+          if (res.rows.length > 0 && res.rows[0].active === true) {
+            return true;
+          }
+          return false;
         },
 
          IsRoomAnonymous: async function(Id)
