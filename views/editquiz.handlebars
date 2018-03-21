@@ -12,7 +12,7 @@
 
     <section>
       <label for="isAnonymous">Is Anonymous</label>
-      <input type="checkbox" id="isAnonymous" name="isAnonymous" />
+      <input type="checkbox" id="isAnonymous" name="IsAnonymous" />
     </section>
 
     <section>
@@ -23,46 +23,32 @@
     <section>
       <h2>Questions</h2>
       <div class="questioncontainer">
+
+{{{{raw}}}}
+      <script id="question-template" type="text/x-handlebars-template">
         <section>
           <label for="questiontitle">Title</label>
-          <input type="text" id="questiontitle" name="questionTitle[]" />
+          <input type="text" id="questiontitle" name="question[{{id}}]Title" />
           <label for="questiontime">Time</label>
-          <input type="number" id="questiontime" name="questionTime[]" value ="30" />
+          <input type="number" id="questiontime" name="question[{{id}}]Time" value ="30" />
         </section>
 
         <section>
           <label for="questioncontent">Question</label>
-          <input type="text" id="questioncontent" name="questionContent[]" />
+          <input type="text" id="questioncontent" name="question[{{id}}]Content" />
         </section>
 
+        {{#each answers}}
         <section id="answercontainer">
           <div class="answer">
-            <label for="answercontentA">Answer</label>
-            <input type="text" id="answercontentA" name="questionAnswerA[]" />
-            <input type="checkbox" name="questionAnswerAIsValid[]" />
+            <label for="answercontent{{.}}">Answer</label>
+            <input type="text" id="answercontent{{.}}" name="question[{{../id}}]Answer{{.}}" />
+            <input type="checkbox" name="question[{{../id}}]Answer{{.}}IsValid" />
           </div>
         </section>
-        <section id="answercontainer">
-          <div class="answer">
-            <label for="answercontentB">Answer</label>
-            <input type="text" id="answercontentB" name="questionAnswerB[]" />
-            <input type="checkbox" name="questionAnswerBIsValid[]" />
-          </div>
-        </section>
-        <section id="answercontainer">
-          <div class="answer">
-            <label for="answercontentC">Answer</label>
-            <input type="text" id="answercontentC" name="questionAnswerC[]" />
-            <input type="checkbox" name="questionAnswerCIsValid[]" />
-          </div>
-        </section>
-        <section id="answercontainer">
-          <div class="answer">
-            <label for="answercontentD">Answer</label>
-            <input type="text" id="answercontentD" name="questionAnswerD[]" />
-            <input type="checkbox" name="questionAnswerDIsValid[]" />
-          </div>
-        </section>
+        {{/each}}
+      </script>
+{{{{/raw}}}}
 
       </div>
       <!-- /questioncontainer -->
@@ -76,25 +62,47 @@
 
 </main>
 <script>
-  var question = $('.questioncontainer').html()
+  // logic to add dynamically more questions to quiz
+  var source = document.getElementById("question-template").innerHTML;
+  var template = Handlebars.compile(source)
+  var context = {
+    answers: ['A', 'B', 'C', 'D'],
+    id: 0
+  }
+  $('.questioncontainer').append(template(context))
+
   $('#addQuestion').click(function(e){
     e.preventDefault()
-    $('.questioncontainer').append(question)
+    context.id++
+  $('.questioncontainer').append(template(context))
   })
-  $("form").submit(function () {
 
-    var this_master = $(this);
+  // before submitting, take quiz form and turn into quiz object
+  // regular html forms suck :'( 
+  $('form#editquizform').submit(function(event) {
+    // this prevents it from being send, for debugging
+    //event.preventDefault()
 
-    this_master.find('input[type="checkbox"]').each( function () {
-        var checkbox_this = $(this);
-
-
-        if( checkbox_this.is(":checked") == true ) {
-            checkbox_this.attr('value','1');
-        } else {
-            checkbox_this.prop('checked',true);
-            checkbox_this.attr('value','0');
-        }
-    })
+    var $form = $(this);
+    var data = $form.serializeArray().reduce(function (previous, current) {
+      var multidim = current.name.match(/(.*)\[(\d)\](.*)/)
+      if (multidim) {
+        var arrayName = multidim[1], arrayIndex = multidim[2], arrayKey = multidim[3]
+        if (!previous[arrayName]) previous[arrayName] = []
+        if (!previous[arrayName][arrayIndex]) previous[arrayName][arrayIndex] = {}
+        previous[arrayName][arrayIndex][arrayKey] = current.value === 'on' ? true : current.value
+      }
+      else previous[current.name] = current.value === 'on' ? true : current.value
+      return previous
+    }, {
+        IsAnonymous: false
+      }
+    )
+    $('<input />')
+      .attr('type', 'hidden')
+      .attr('name', 'data')
+      .attr('value', JSON.stringify(data))
+      .appendTo(this)
+    return true
 })
 </script>
