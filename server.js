@@ -138,8 +138,66 @@ app.get('/create', isAuthenticated, (req, res) => {
 })
 app.post('/edit', isAuthenticated, (req, res) => {
   console.log(req.body)
-  res.render('editquiz', {
+  Queries.CreateQuiz(req.body.title, req.body.isAnonymous, req.session.user).then((quizId) => {
+    console.log('created', quizId)
+    if (typeof req.body['questionTitle[]'] === 'string') {
+      Queries.AddQuestion(
+        req.body['questionTitle[]'],
+        req.body['questionContent[]'],
+        req.body['questionTime[]'],
+        quizId,
+        0,
+        [
+          {
+            answer: req.body['questionAnswerA[]'],
+            answerIsTrue: req.body['questionAnswerAIsValid[]'] === '1'
+          },
+          {
+            answer: req.body['questionAnswerB[]'],
+            answerIsTrue: req.body['questionAnswerBIsValid[]'] === '1'
+          },
+          {
+            answer: req.body['questionAnswerC[]'],
+            answerIsTrue: req.body['questionAnswerCIsValid[]'] === '1'
+          },
+          {
+            answer: req.body['questionAnswerD[]'],
+            answerIsTrue: req.body['questionAnswerDIsValid[]'] === '1'
+          },
+        ].filter(a => a.answer.length > 0)
+      )
+    }
+    else {
+    for (let i = 0; i <= req.body['questionTitle[]'].length; i++) {
+      Queries.AddQuestion(
+        req.body['questionTitle[]'][i],
+        req.body['questionContent[]'][i],
+        req.body['questionTime[]'][i],
+        quizId,
+        0,
+        [
+          {
+            answer: req.body['questionAnswerA[]'][i],
+            answerIsTrue: req.body['questionAnswerAIsValid[]'][i] === '1'
+          },
+          {
+            answer: req.body['questionAnswerB[]'][i],
+            answerIsTrue: req.body['questionAnswerBIsValid[]'][i] === '1'
+          },
+          {
+            answer: req.body['questionAnswerC[]'][i],
+            answerIsTrue: req.body['questionAnswerCIsValid[]'][i] === '1'
+          },
+          {
+            answer: req.body['questionAnswerD[]'][i],
+            answerIsTrue: req.body['questionAnswerDIsValid[]'][i] === '1'
+          },
+        ].filter(a => a.answer && a.answer.length > 0)
+      )
+    }
+    }
   })
+  res.redirect('/');
 })
 
 app.post('/', (req, res) => {

@@ -7,7 +7,7 @@
 
     <section>
       <label for="quiztime">Time</label>
-      <input type="text" id="quiztime" />
+      <input type="number" id="quiztime" />
     </section>
 
     <section>
@@ -27,7 +27,7 @@
           <label for="questiontitle">Title</label>
           <input type="text" id="questiontitle" name="questionTitle[]" />
           <label for="questiontime">Time</label>
-          <input type="text" id="questiontime" name="questionTime[]" />
+          <input type="number" id="questiontime" name="questionTime[]" value ="30" />
         </section>
 
         <section>
@@ -47,6 +47,20 @@
             <label for="answercontentB">Answer</label>
             <input type="text" id="answercontentB" name="questionAnswerB[]" />
             <input type="checkbox" name="questionAnswerBIsValid[]" />
+          </div>
+        </section>
+        <section id="answercontainer">
+          <div class="answer">
+            <label for="answercontentC">Answer</label>
+            <input type="text" id="answercontentC" name="questionAnswerC[]" />
+            <input type="checkbox" name="questionAnswerCIsValid[]" />
+          </div>
+        </section>
+        <section id="answercontainer">
+          <div class="answer">
+            <label for="answercontentD">Answer</label>
+            <input type="text" id="answercontentD" name="questionAnswerD[]" />
+            <input type="checkbox" name="questionAnswerDIsValid[]" />
           </div>
         </section>
 
