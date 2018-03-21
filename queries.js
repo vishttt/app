@@ -421,6 +421,17 @@ let dbclient;
             });
         },
 
+        CreateQuiz: async function(name, isAnonymous, userId)
+        {
+            return dbclient.query(`INSERT INTO "${schema}"."Quiz"("Name", "IsAnonymous", "OwnerUserId")
+                                   VALUES ($1, $2, $3)
+                                   RETURNING "Id"`,
+                                  [name, isAnonymous, userId]).then( (res) =>
+            {
+                return res.rows[0].Id;
+            });
+        },
+
         DeleteQuiz: async function(Id)
         {
             return dbclient.query(`DELETE FROM "${schema}"."Quiz"

@@ -1,0 +1,100 @@
+<main>
+  <form class="drumbleform" id="editquizform" class="drumblequizform" method="post" action="/edit">
+    <section>
+      <input type="submit" value="Back" />
+      <input type="submit" value="Done" />
+    </section>
+
+    <section>
+      <label for="quiztime">Time</label>
+      <input type="number" id="quiztime" />
+    </section>
+
+    <section>
+      <label for="isAnonymous">Is Anonymous</label>
+      <input type="checkbox" id="isAnonymous" name="isAnonymous" />
+    </section>
+
+    <section>
+      <label for="quiztitle">Title</label>
+      <input type="text" id="quiztitle" name="title" />
+    </section>
+
+    <section>
+      <h2>Questions</h2>
+      <div class="questioncontainer">
+        <section>
+          <label for="questiontitle">Title</label>
+          <input type="text" id="questiontitle" name="questionTitle[]" />
+          <label for="questiontime">Time</label>
+          <input type="number" id="questiontime" name="questionTime[]" value ="30" />
+        </section>
+
+        <section>
+          <label for="questioncontent">Question</label>
+          <input type="text" id="questioncontent" name="questionContent[]" />
+        </section>
+
+        <section id="answercontainer">
+          <div class="answer">
+            <label for="answercontentA">Answer</label>
+            <input type="text" id="answercontentA" name="questionAnswerA[]" />
+            <input type="checkbox" name="questionAnswerAIsValid[]" />
+          </div>
+        </section>
+        <section id="answercontainer">
+          <div class="answer">
+            <label for="answercontentB">Answer</label>
+            <input type="text" id="answercontentB" name="questionAnswerB[]" />
+            <input type="checkbox" name="questionAnswerBIsValid[]" />
+          </div>
+        </section>
+        <section id="answercontainer">
+          <div class="answer">
+            <label for="answercontentC">Answer</label>
+            <input type="text" id="answercontentC" name="questionAnswerC[]" />
+            <input type="checkbox" name="questionAnswerCIsValid[]" />
+          </div>
+        </section>
+        <section id="answercontainer">
+          <div class="answer">
+            <label for="answercontentD">Answer</label>
+            <input type="text" id="answercontentD" name="questionAnswerD[]" />
+            <input type="checkbox" name="questionAnswerDIsValid[]" />
+          </div>
+        </section>
+
+      </div>
+      <!-- /questioncontainer -->
+
+    </section>
+
+    <a href="#" id="addQuestion">New Question</a>
+    <input type="submit" value="save"/>
+
+  </form>
+
+</main>
+<script>
+  var question = $('.questioncontainer').html()
+  $('#addQuestion').click(function(e){
+    e.preventDefault()
+    $('.questioncontainer').append(question)
+  })
+  $("form").submit(function () {
+
+    var this_master = $(this);
+
+    this_master.find('input[type="checkbox"]').each( function () {
+        var checkbox_this = $(this);
+
+
+        if( checkbox_this.is(":checked") == true ) {
+            checkbox_this.attr('value','1');
+        } else {
+            checkbox_this.prop('checked',true);
+            checkbox_this.attr('value','0');
+        }
+    })
+})
+</script>

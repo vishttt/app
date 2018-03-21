@@ -8,27 +8,16 @@
     
         -->
 
-    <select size="10">
-      <option>Testquiz</option>
-      <option>Week2 performance with index</option>
-      <option>Week5 trigger syntax</option>
-      <option>DB1 SQL refresher</option>
-      <option>Testquiz2</option>
-      <option>Testquiz3</option>
-      <option>Testquiz4</option>
-      <option>Testquiz5</option>
-      <option>Testquiz6</option>
-      <option>Testquiz7</option>
-    </select>
+    <ul>
+      {{#each quizes}}
+      <li data-id="{{Id}}">{{Name}}</li>
+      {{/each}}
+    </ul>
 
   </section>
 
   <section>
-
-    <input type="submit" value="Start" />
-    <input type="submit" value="Create" />
-    <input type="submit" value="Edit" />
-    <input type="submit" value="Delete" />
+    <a href="/create">create</a>
 
   </section>
 </main>
