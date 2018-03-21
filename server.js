@@ -132,11 +132,12 @@ app.post('/leave', (req, res) => {
 app.get('/manage', isAuthenticated, (req, res) => {
   Queries.GetAllQuizzes(req.session.user).then((r) => {
     console.log(r.rows)
+    var sessionmessage = req.session.managequizeserror;
+    req.session.managequizeserror = "";
     res.render('managequizes', {
       quizes: r.rows,
-      message: req.session.managequizeserror
+      message: sessionmessage
     })
-    req.session.managequizeserror = "";
   })
 })
 app.get('/create', isAuthenticated, (req, res) => {
@@ -258,6 +259,7 @@ io.on('connection', (socket) => {
             ])
         })
     }
+
     socket.on('message', (msg) => {
         const query = dbclient.query('insert into foo (name) values ($1)', [msg])
     })
