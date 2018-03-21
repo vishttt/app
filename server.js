@@ -19,7 +19,12 @@ app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false }))
 
 // set handlebars as view engine
-app.engine('handlebars', exphbs({defaultLayout: 'main'}))
+app.engine('handlebars', exphbs({
+  defaultLayout: 'main',
+  helpers: {
+    raw: (options) => options.fn(this)
+  }
+}))
 app.set('view engine', 'handlebars')
 
 const session = require('express-session')({
@@ -132,72 +137,35 @@ app.get('/manage', isAuthenticated, (req, res) => {
     })
   })
 })
-app.get('/create', isAuthenticated, (req, res) => {
+app.get('/create', (req, res) => {
   res.render('editquiz', { 
   })
 })
 app.post('/edit', isAuthenticated, (req, res) => {
-  console.log(req.body)
-  Queries.CreateQuiz(req.body.title, req.body.isAnonymous, req.session.user).then((quizId) => {
+  const quiz = JSON.parse(req.body.data)
+  Queries.CreateQuiz(quiz.title, !!quiz.IsAnonymous, req.session.user).then((quizId) => {
     console.log('created', quizId)
-    if (typeof req.body['questionTitle[]'] === 'string') {
+    quiz.question.forEach((question, index) => {
       Queries.AddQuestion(
-        req.body['questionTitle[]'],
-        req.body['questionContent[]'],
-        req.body['questionTime[]'],
+        question.Title,
+        question.Content,
+        question.Time,
         quizId,
-        0,
+        index,
         [
           {
-            answer: req.body['questionAnswerA[]'],
-            answerIsTrue: req.body['questionAnswerAIsValid[]'] === '1'
+            answer: question.AnserA,
+            answerIsTrue: question.AnswerAIsTrue
           },
           {
-            answer: req.body['questionAnswerB[]'],
-            answerIsTrue: req.body['questionAnswerBIsValid[]'] === '1'
-          },
-          {
-            answer: req.body['questionAnswerC[]'],
-            answerIsTrue: req.body['questionAnswerCIsValid[]'] === '1'
-          },
-          {
-            answer: req.body['questionAnswerD[]'],
-            answerIsTrue: req.body['questionAnswerDIsValid[]'] === '1'
-          },
-        ].filter(a => a.answer.length > 0)
-      )
-    }
-    else {
-    for (let i = 0; i <= req.body['questionTitle[]'].length; i++) {
-      Queries.AddQuestion(
-        req.body['questionTitle[]'][i],
-        req.body['questionContent[]'][i],
-        req.body['questionTime[]'][i],
-        quizId,
-        0,
-        [
-          {
-            answer: req.body['questionAnswerA[]'][i],
-            answerIsTrue: req.body['questionAnswerAIsValid[]'][i] === '1'
-          },
-          {
-            answer: req.body['questionAnswerB[]'][i],
-            answerIsTrue: req.body['questionAnswerBIsValid[]'][i] === '1'
-          },
-          {
-            answer: req.body['questionAnswerC[]'][i],
-            answerIsTrue: req.body['questionAnswerCIsValid[]'][i] === '1'
-          },
-          {
-            answer: req.body['questionAnswerD[]'][i],
-            answerIsTrue: req.body['questionAnswerDIsValid[]'][i] === '1'
+            answer: question.AnserB,
+            answerIsTrue: question.AnswerBIsTrue
           },
         ].filter(a => a.answer && a.answer.length > 0)
       )
-    }
-    }
+    })
   })
-  res.redirect('/');
+  res.redirect('/manage');
 })
 
 app.get('/quiz/:quizId', (req, res) => {
