@@ -60,6 +60,18 @@ app.use(function(req,res,next){
   res.locals.user = req.session.user
   next()
 })
+// middleware function for authentication-only pages
+const isAuthenticated = (req, res, next) => {
+  // check if user is logged in
+  if (req.session.user)
+    return next()
+
+  // if not show login, and save path
+  res.render('login', {
+    hideUser: true,
+    redirectTo: req.path
+  })
+}
 
 // when we get a request on / send the index.html page
 app.get('/', (req, res) => {
@@ -76,7 +88,12 @@ app.get('/login', (req, res) => {
 app.post('/login', (req, res) => {
   if (req.body.username && req.body.username.length > 0) {
     req.session.user = req.body.username
-    res.redirect('/')
+
+    // if we're coming from an other page, redirect
+    if (req.body.redirectTo)
+      res.redirect(req.body.redirectTo)
+    else
+      res.redirect('/')
   }
   else {
     res.render('login', {
@@ -105,6 +122,24 @@ app.post('/enterroom', (req, res) => {
 app.post('/leave', (req, res) => {
   req.session.room = false
   res.redirect('/')
+})
+
+app.get('/manage', isAuthenticated, (req, res) => {
+  Queries.GetAllQuizzes(req.session.user).then((r) => {
+    console.log(r.rows)
+    res.render('managequizes', { 
+      quizes: r.rows
+    })
+  })
+})
+app.get('/create', isAuthenticated, (req, res) => {
+  res.render('editquiz', { 
+  })
+})
+app.post('/edit', isAuthenticated, (req, res) => {
+  console.log(req.body)
+  res.render('editquiz', {
+  })
 })
 
 app.post('/', (req, res) => {
