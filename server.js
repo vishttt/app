@@ -200,6 +200,12 @@ app.post('/edit', isAuthenticated, (req, res) => {
   res.redirect('/');
 })
 
+app.get('/quiz/:quizId', (req, res) => {
+  const quizId = req.params.quizId
+  const roomId = Math.round(Math.random()*100000)
+})
+
+
 app.post('/', (req, res) => {
     // if rnumber or roomnumber empty redirect back
     if (req.body.rnumber.length == 0 || req.body.roomnumber.length == 0)

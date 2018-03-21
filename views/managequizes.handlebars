@@ -10,7 +10,10 @@
 
     <ul>
       {{#each quizes}}
-      <li data-id="{{Id}}">{{Name}}</li>
+      <li data-id="{{Id}}">
+        {{Name}}
+        (<a href="/quiz/{{Id}}">start</a>)
+        </li>
       {{/each}}
     </ul>
 
