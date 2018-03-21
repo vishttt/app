@@ -510,7 +510,6 @@ let dbclient;
                                    AND "Id" = $2`,
                                    [userId, quizId]).then( ( res) =>
             {
-
                 if (typeof res.rows[0] !== 'undefined' && typeof res.rows[0].hasquiz !== 'undefined')
                 {
                     return true;

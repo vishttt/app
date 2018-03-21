@@ -126,14 +126,16 @@ app.post('/leave', (req, res) => {
 
 app.get('/manage', isAuthenticated, (req, res) => {
   Queries.GetAllQuizzes(req.session.user).then((r) => {
-    console.log(r.rows)
-    res.render('managequizes', { 
-      quizes: r.rows
+    // console.log(r.rows)
+    res.render('managequizes', {
+      quizes: r.rows,
+      message: req.session.managequizeserror
     })
+    req.session.managequizeserror = "";
   })
 })
 app.get('/create', isAuthenticated, (req, res) => {
-  res.render('editquiz', { 
+  res.render('editquiz', {
   })
 })
 app.post('/edit', isAuthenticated, (req, res) => {
@@ -200,9 +202,41 @@ app.post('/edit', isAuthenticated, (req, res) => {
   res.redirect('/');
 })
 
-app.get('/quiz/:quizId', (req, res) => {
-  const quizId = req.params.quizId
-  const roomId = Math.round(Math.random()*100000)
+// app.get('/quiz/:quizId', (req, res) => {
+//   const quizId = req.params.quizId
+//   const roomId = Math.round(Math.random()*100000)
+// })
+
+app.post('/quiz', isAuthenticated, (req, res) => {
+  if (typeof req.body.selectedquiz === 'undefined'){
+    req.session.managequizeserror = "please select a query";
+    res.redirect('manage')
+  }
+
+  if (req.body.roomid == ''){
+    req.session.managequizeserror = "please enter a room id";
+    res.redirect('manage')
+  }
+
+  Queries.UserHasQuiz(req.session.user, req.body.selectedquiz).then((r) => {
+    if(!r){
+      req.session.managequizeserror = "User cannot post this query!";
+      res.redirect('manage');
+    }
+    Queries.CreateRoom(req.body.roomid, req.body.selectedquiz).then((r) => {
+      if(!r){
+        req.session.managequizeserror = "Try different room name";
+        res.redirect('manage');
+      }
+      req.session.room = req.body.roomid;
+      res.render('roomstart', {
+        roomid: req.body.roomid
+      })
+    })
+  })
+
+  // const quizId = req.params.quizId
+  // const roomId = Math.round(Math.random()*1000000)
 })
 
 
