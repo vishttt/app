@@ -10,11 +10,17 @@ const bodyParser = require('body-parser')
 const io = require('socket.io')(http)
 const Queries = require('./queries.js')
 
+var exphbs = require('express-handlebars')
+
 const schema = process.env.DB_SCHEMA
 const port = process.env.PORT || 3000
 
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false }))
+
+// set handlebars as view engine
+app.engine('handlebars', exphbs({defaultLayout: 'main'}))
+app.set('view engine', 'handlebars')
 
 const session = require('express-session')({
     secret: 'my-secret',
@@ -47,19 +53,59 @@ dbclient.on('notification', (msg) => {
     io.emit('message', msg.payload);
 });
 
+// always pass current user to templates
+app.use(function(req,res,next){
+  // set session user as locals,
+  // it get's used in views/layouts/main.handlebars
+  res.locals.user = req.session.user
+  next()
+})
+
 // when we get a request on / send the index.html page
 app.get('/', (req, res) => {
-    if (req.session.user) {
-        // user is logged in
-        if (req.session.user.substr(0,1) === 'u')
-            return res.sendFile(__dirname + '/public/editquestion.html')
-        else
-            return res.sendFile(__dirname + '/public/answer.html')
-    } else {
-        // not logged in
-        return res.sendFile(__dirname + '/public/login.html')
-    }
+  if (req.session.room) {
+    res.render('room')
+  } else {
+    res.render('enterroom')
+  }
 });
+
+app.get('/login', (req, res) => {
+  res.render('login', {hideUser: true})
+})
+app.post('/login', (req, res) => {
+  if (req.body.username && req.body.username.length > 0) {
+    req.session.user = req.body.username
+    res.redirect('/')
+  }
+  else {
+    res.render('login', {
+      hideUser: true,
+      message: 'invalid login'
+    })
+  }
+})
+// logout the user
+app.get('/logout', (req, res) => {
+  // destroy session, and when done redirect
+  req.session.destroy(() => res.redirect('/'))
+})
+
+app.post('/enterroom', (req, res) => {
+  Queries.IsRoomActive(req.body.roomid).then(isActive => {
+    if (isActive) {
+      req.session.room = req.body.roomid
+      res.redirect('/')
+    }
+    else {
+      res.redirect('/')
+    }
+  })
+})
+app.post('/leave', (req, res) => {
+  req.session.room = false
+  res.redirect('/')
+})
 
 app.post('/', (req, res) => {
     // if rnumber or roomnumber empty redirect back
