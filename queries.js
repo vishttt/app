@@ -502,6 +502,26 @@ let dbclient;
             }).catch(e => {console.error(e.stack);});
         },
 
+        UserHasQuiz: async function(userId, quizId)
+        {
+            return dbclient.query(`SELECT true AS hasquiz
+                                   FROM "${schema}"."Quiz"
+                                   WHERE "OwnerUserId" = $1
+                                   AND "Id" = $2`,
+                                   [userId, quizId]).then( ( res) =>
+            {
+
+                if (typeof res.rows[0] !== 'undefined' && typeof res.rows[0].hasquiz !== 'undefined')
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }).catch(e => {console.error(e.stack);});
+        },
+
 
     }
 
