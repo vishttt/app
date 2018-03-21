@@ -32,7 +32,7 @@ let dbclient;
                                     [res.rows[0].Id, quizId, orderNr]).then( (result) =>
                     {
                         dbclient.query('COMMIT').catch(e => {console.error(e.stack);});
-                        return true;
+                        return res.rows[0].Id;
                     });
                 });
           });
@@ -72,64 +72,62 @@ let dbclient;
         AddAnswer: async function(Id, answer, answerIsTrue)
         {
 
-            if (Id || Id === 0)
-            {
-                dbclient.query(`SELECT * FROM "${schema}"."Answer" WHERE "QuestionId"=$1`,
-                    [Id]).then(res =>
+            return dbclient.query(`SELECT * FROM "${schema}"."Answer" WHERE "QuestionId"=$1`,
+                [Id]).then(res =>
+                {
+                    if (res.rows.length < 4)
                     {
-                        if (res.rows.length < 4)
-                        {
-                            dbclient.query(`INSERT INTO "${schema}"."Answer"("QuestionId", "Content", "IsCorrect") VALUES ($1, $2, $3)`,
-                                [Id, answer, answerIsTrue]).catch(e => {console.error(e.stack);});
-                        }
-                    }).catch(e => {console.error(e.stack); error = true;});
-            }
+                        return dbclient.query(`INSERT INTO "${schema}"."Answer"("QuestionId", "Content", "IsCorrect") VALUES ($1, $2, $3) RETURNING "Id"`,
+                            [Id, answer, answerIsTrue]).then( (result) =>
+                          {
+                              return result.rows[0].Id;
+                          });
+                    }
+                });
+
         },
 
         IsRoomActive: async function(Id)
         {
-            if ((Id || Id === 0) )
-            {
-                return dbclient.query(`SELECT subq1.expected > subq2.ended OR (subq2 IS NULL AND subq1.expected > 0) OR subq1 IS NULL as active
-                                             FROM (SELECT rm."Id" as roomid, count(*) as expected
-                                           	 FROM "${schema}"."Room" as rm,
-                                          	 "${schema}"."QuizQuestion" as qq
-                                          	 WHERE rm."QuizId" = qq."QuizId"
-                                          	 GROUP BY rm."Id") AS subq1
-                                          	 LEFT JOIN (SELECT ended."RoomId" as roomid, sum(ended.count) AS ended
-                                          	 FROM "${schema}".room_ended_questions AS ended
-                                          	 GROUP BY ended."RoomId") AS subq2 ON subq2.roomid = subq1.roomid
-                                          	 WHERE subq1.roomid = $1`,
-                                [Id]).then(res => {
-                  if (typeof res.rows[0].active !== 'undefined' && res.rows[0].active === true)
-                  {
-                      return true;
-                  }
-                  return false;
-                }).catch(e => {console.error(e.stack);});
-            }
+            return dbclient.query(`SELECT subq1.expected > subq2.ended OR (subq2 IS NULL AND subq1.expected > 0) OR subq1 IS NULL as active
+                                         FROM (SELECT rm."Id" as roomid, count(*) as expected
+                                       	 FROM "${schema}"."Room" as rm,
+                                      	 "${schema}"."QuizQuestion" as qq
+                                      	 WHERE rm."QuizId" = qq."QuizId"
+                                      	 GROUP BY rm."Id") AS subq1
+                                      	 LEFT JOIN (SELECT ended."RoomId" as roomid, sum(ended.count) AS ended
+                                      	 FROM "${schema}".room_ended_questions AS ended
+                                      	 GROUP BY ended."RoomId") AS subq2 ON subq2.roomid = subq1.roomid
+                                      	 WHERE subq1.roomid = $1`,
+                            [Id]).then(res => {
+              if (typeof res.rows[0] !== 'undefined' && typeof res.rows[0].active !== 'undefined' && res.rows[0].active === true)
+              {
+                  return true;
+              }
+              else
+              {
+                return false;
+              }
+            }).catch(e => {console.error(e.stack);});
         },
 
          IsRoomAnonymous: async function(Id)
         {
-            if ((Id || Id === 0) )
-            {
-              return dbclient.query(`SELECT "quiz"."IsAnonymous" as "anonymous"
-                            	FROM "${schema}"."Room" AS "room",
-                            	"${schema}"."Quiz" AS "quiz"
-                            	WHERE "room"."QuizId" = "quiz"."Id"
-                            	AND "room"."Id" = $1`,
-                              [Id]).then(res => {
-                if (typeof res.rows[0].anonymous !== 'undefined' && res.rows[0].anonymous === true)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-              }).catch(e => {console.error(e.stack);});
-            }
+            return dbclient.query(`SELECT "quiz"."IsAnonymous" as "anonymous"
+                          	FROM "${schema}"."Room" AS "room",
+                          	"${schema}"."Quiz" AS "quiz"
+                          	WHERE "room"."QuizId" = "quiz"."Id"
+                          	AND "room"."Id" = $1`,
+                            [Id]).then(res => {
+              if (typeof res.rows[0] !== 'undefined' && typeof res.rows[0].anonymous !== 'undefined' && res.rows[0].anonymous === true)
+              {
+                  return true;
+              }
+              else
+              {
+                  return false;
+              }
+            }).catch(e => {console.error(e.stack);});
         },
 
         GetRoomResults: async function(Id)
@@ -150,7 +148,7 @@ let dbclient;
                                       	 WHERE room."Id" = $1`,
                                          [Id]).then(res =>
                   {
-                    if (typeof res.rows[0].exists !== 'undefined' && res.rows[0].exists === true)
+                    if (typeof res.rows[0] !== 'undefined' && typeof res.rows[0].exists !== 'undefined' && res.rows[0].exists === true)
                     {
                         return true;
                     }
@@ -168,8 +166,9 @@ let dbclient;
                                          WHERE quiz."Id" = $1`,
                                          [Id]).then(res =>
                   {
-                    if (typeof res.rows[0].exists !== 'undefined' && res.rows[0].exists === true)
+                    if (typeof res.rows[0] !== 'undefined' && typeof res.rows[0].exists !== 'undefined' && res.rows[0].exists === true)
                     {
+
                         return true;
                     }
                     else
@@ -181,11 +180,11 @@ let dbclient;
 
         CreateRoom: async function(roomId, quizId)
         {
-              return module.exports.RoomExists().then((result) =>
+              return module.exports.RoomExists(roomId).then((result) =>
               {
-                  module.exports.QuizExists().then((result2) =>
+                  return module.exports.QuizExists(quizId).then((result2) =>
                   {
-                      if (result !== true && result2 === true )
+                      if (result === false && result2 === true )
                       {
                           dbclient.query(`INSERT INTO "${schema}"."Room"(
                                           "Id", "QuizId")
@@ -458,6 +457,42 @@ let dbclient;
                 return res;
             });
         },
+
+        DeleteUserInstance: async function(userInstanceId)
+        {
+            return dbclient.query(`DELETE FROM "${schema}"."UserInstance"
+                                	 WHERE "Id" = $1`,
+                                   [userInstanceId]).then( (res) =>
+            {
+                return true;
+            });
+        },
+
+        CreateAnswerInstanceOnActiveQuestion: async function(roomId, userInstanceId, answerId)
+        {
+            return dbclient.query(`INSERT INTO "${schema}"."AnswerInstance"("QuestionInstanceId", "AnswerId", "UserInstanceId")
+                                   SELECT questioninstanceid, $3 , $1
+                                   FROM "${schema}".active_questions_per_room
+                                   WHERE "RoomId" = $2
+                                   RETURNING "Id"`,
+                                   [userInstanceId, roomId, answerId]).then( (err, res) =>
+            {
+                if (err)
+                {
+                    console.log(err.stack);
+                }
+                if (typeof res.rows[0] !== 'undefined' && typeof res.rows[0].Id !== 'undefined')
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+
+            });
+        },
+
 
     }
 
