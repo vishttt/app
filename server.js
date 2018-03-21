@@ -413,63 +413,184 @@ io.on('connection', (socket) => {
     });
 
     // For testing purposes
-    socket.on('TestFunction', (msg) =>
+  //  test();
+    function test()
     {
-      /*
-      Queries.AddQuestion('testQ', 'whatisTest', 20, 'quizId', 1, [{answer: 'dunno', answerIsTrue: false}, {answer: 'yukno', answerIsTrue: true} ]).then( (result) =>
-      {
-          console.log(result);
-      });
 
-      Queries.EditQuestion(Id, 'newTitle', 'lalala', 15).then( (result) =>
-      {
-          console.log(result);
-      });
+      // Queries.AddQuestion('testQ', 'whatisTest', 20, 'quizId', 1, [{answer: 'dunno', answerIsTrue: false}, {answer: 'yukno', answerIsTrue: true} ]).then( (result) =>
+      // {
+      //     console.log(result);
+      // });
+      //
+      // Queries.EditQuestion(Id, 'newTitle', 'lalala', 15).then( (result) =>
+      // {
+      // Queries.CreateEmptyQuiz('newUserId').then( (result) =>
+      // {
+      //     console.log(result);
+      // });
+      //
+      //
+      // Queries.AddQuestion('testQ', 'How many days till deadline?', 20, 5, 2, [{answer: 'dunno', answerIsTrue: false}, {answer: '1', answerIsTrue: true} ]).then( (result) =>
+      // {
+      //     console.log(result);
+      // });
+      //
+      // Queries.EditQuestion(39, 'newTitle', 'newContent lalala', 15).then( (result) =>
+      // {
+      //     console.log(result);
+      // });
+      // Queries.EditAnswer(76, 'newnewAnswer', false).then( (result) =>
+      // {
+      //     console.log(result);
+      // });
+      // Queries.DeleteAnswer(76).then( (result) =>
+      // {
+      //     console.log(result);
+      // });
+      //
+      // Queries.AddAnswer(39, 'AnotherOne', true).then( (result) =>
+      // {
+      //     console.log(result);
+      // });
+      // Queries.CreateRoom('myRoomId', 5).then( (result) =>
+      // {
+      //     console.log(result);
+      // });
+      // Queries.IsRoomActive('myRoomId').then( (result) =>
+      // {
+      //     console.log(result);
+      // });
+      //
+      // Queries.IsRoomAnonymous('myRoomId').then( (result) =>
+      // {
+      //     console.log(result);
+      // });
+      //
+      // Queries.CreateUserInstance('myRoomId', 'Tom').then( (result) =>
+      // {
+      //     console.log(result);
+      // });
+      //
+      // Queries.CreateUserInstance('myRoomId', 'Matas').then( (result) =>
+      // {
+      //     console.log(result);
+      // });
+      //
+      // Queries.CreateUserInstance('myRoomId', 'Jonas').then( (result) =>
+      // {
+      //     console.log(result);
+      // });
+      // Queries.CreateUserInstance('myRoomId', 'Larry').then( (result) =>
+      // {
+      //     console.log(result);
+      // });
+      //
+      // Queries.CreateUserInstance('myRoomId', 'Lenni').then( (result) =>
+      // {
+      //     console.log(result);
+      // });
+      // // Queries.CreateQuestionInstance('myRoomId', 'Lenni').then( (result) =>
+      // // {
+      //     console.log(result);
+      // });
+      // Queries.CreateAnswerInstanceOnActiveQuestion('myRoomId', 5, 82).then( (result) =>
+      // {
+      //     console.log(result);
+      // });
+      //
+      // Queries.CreateAnswerInstanceOnActiveQuestion('myRoomId', 6, 82).then( (result) =>
+      // {
+      //     console.log(result);
+      // });
+      //
+      // Queries.CreateAnswerInstanceOnActiveQuestion('myRoomId', 7, 82).then( (result) =>
+      // {
+      //     console.log(result);
+      // });
+      // Queries.CreateAnswerInstanceOnActiveQuestion('myRoomId', 8, 82).then( (result) =>
+      // {
+      //     console.log(result);
+      // });
+      //
+      // Queries.CreateAnswerInstanceOnActiveQuestion('myRoomId', 9, 82).then( (result) =>
+      // {
+      //     console.log(result);
+      // });
+      // Queries.GetLastQuestionStatistics('myRoomId').then( (result) =>
+      // {
+      //     console.log(result);
+      // });
 
-      Queries.UpdateQuiz().then( (result) =>
-      {
-          console.log(result);
-      });
+      // Queries.GetLastQuestionInstance('myRoomId').then( (result) =>
+      // {
+      //     console.log(result);
+      // });
+      //
+      // Queries.StopQuestionTime(62).then( (result) =>
+      // {
+      //     console.log(result);
+      // });
+      //
+      // Queries.GetPlayerRanking(7).then( (result) =>
+      // {
+      //     console.log(result);
+      // });
+      //
+      // Queries.GetRemainingQuestionCount('myRoomId').then( (result) =>
+      // {
+      //     console.log(result);
+      // });
+      //
+      // Queries.GetLastQuestionStatistics('myRoomId').then( (result) =>
+      // {
+      //     console.log(result);
+      // });
+      //
+      // Queries.GetConnectedUsers('myRoomId').then( (result) =>
+      // {
+      //     console.log(result);
+      // });
 
-      Queries.UpdateQuiz().then( (result) =>
-      {
-          console.log(result);
-      });
+      // Queries.DeleteUserInstance(6).then( (result) =>
+      // {
+      //     console.log(result);
+      // });
 
-      Queries.UpdateQuiz().then( (result) =>
-      {
-          console.log(result);
-      });
-
-      Queries.UpdateQuiz().then( (result) =>
-      {
-          console.log(result);
-      });
-*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    });
+      // Queries.GetAllQuizzes('newUserId').then( (result) =>
+      // {
+      //     console.log(result);
+      // });
+      //
+      // Queries.GetQuizInfo(5).then( (result) =>
+      // {
+      //     console.log(result);
+      // });
+      //
+      // Queries.GetQuizQuestions(5).then( (result) =>
+      // {
+      //     console.log(result);
+      // });
+      // Queries.GetQuizAnswers(5).then( (result) =>
+      // {
+      //     console.log(result);
+      // });
+      // Queries.DeleteQuiz(3).then( (result) =>
+      // {
+      //     console.log(result);
+      // });
+      // Queries.UpdateQuiz(5, 'bevardis', true).then( (result) =>
+      // {
+      //     console.log(result);
+      // });
+      // Queries.GetCorrectAnswers(61).then( (result) =>
+      // {
+      //     console.log(result);
+      // });
+      // Queries.GetQuizQuestions(5).then( (result) =>
+      // {
+      //     console.log(result);
+      // });
+    };
 
 });
 

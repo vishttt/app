@@ -223,7 +223,7 @@ let dbclient;
                                 });
         },
 
-        GetQuestionInstance: async function(roomId)
+        GetLastQuestionInstance: async function(roomId)
         {
             return module.exports.GetLastQuestionId(roomId).then( (questionId) =>
             {
@@ -347,8 +347,6 @@ let dbclient;
                     return res2;
                 });
             });
-            return {question: {}, ans1Count: 2, ans2Count: 5, ans3Count: 6, ans4Count: 1,};
-
         },
 
         GetConnectedUsers: async function(roomId)
@@ -386,19 +384,19 @@ let dbclient;
 
         GetQuizQuestions: async function(quizId)
         {
-            return dbclient.query(`SELECT q."Id" AS id, q."Title" AS title, q."Content" AS content,
+            return dbclient.query(`SELECT q."Id" AS id, q."Title" AS title, q."Content" AS content, qq."OrderNr" as order,
                                   q."Time" AS time FROM "${schema}"."QuizQuestion" AS qq,
                                   "${schema}"."Question" AS q
                                   WHERE qq."QuizId" = $1
                                   AND qq."QuestionId" = q."Id"
-                                  GROUP BY q."Id", q."Title", q."Content", q."Time"`,
+                                  GROUP BY q."Id", q."Title", q."Content", q."Time", qq."OrderNr"`,
                                   [quizId]).then( (res) =>
             {
                 return res;
             });
         },
 
-        GetQuestionAnswers: async function(questionId)
+        GetQuizAnswers: async function(questionId)
         {
             return dbclient.query(`SELECT a."Id" AS id, a."QuestionId" as question, a."Content" as content, a."IsCorrect" as correct
                                    FROM "${schema}"."Answer" AS a,
@@ -471,16 +469,16 @@ let dbclient;
         CreateAnswerInstanceOnActiveQuestion: async function(roomId, userInstanceId, answerId)
         {
             return dbclient.query(`INSERT INTO "${schema}"."AnswerInstance"("QuestionInstanceId", "AnswerId", "UserInstanceId")
-                                   SELECT questioninstanceid, $3 , $1
-                                   FROM "${schema}".active_questions_per_room
-                                   WHERE "RoomId" = $2
-                                   RETURNING "Id"`,
-                                   [userInstanceId, roomId, answerId]).then( (err, res) =>
+                                	 SELECT COALESCE(aqpr.qiid,0) , $3 , $1
+                                	 FROM "${schema}"."Room" as room,
+                                	 (SELECT aqpr."RoomId", aqpr.questioninstanceid as qiid
+                                	 FROM "${schema}".active_questions_per_room AS aqpr) AS aqpr
+                                	 WHERE room."Id" = $2
+                                   AND room."Id" = aqpr."RoomId"
+                                	 RETURNING "Id"`,
+                                   [userInstanceId, roomId, answerId]).then( ( res) =>
             {
-                if (err)
-                {
-                    console.log(err.stack);
-                }
+
                 if (typeof res.rows[0] !== 'undefined' && typeof res.rows[0].Id !== 'undefined')
                 {
                     return true;
@@ -490,7 +488,7 @@ let dbclient;
                     return false;
                 }
 
-            });
+            }).catch(e => {console.error(e.stack);});
         },
 
 
