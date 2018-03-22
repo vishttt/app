@@ -5,6 +5,7 @@
     <div></div>
     <div></div>
   </div>
+  <ul id="connectedUsers"></ul>
   <div id="answercontainer">
     <ul id="answers">
       <li>a</li>
@@ -15,9 +16,7 @@
 
 <footer>
   <div id="timer">
-  ends
-  <span id="timeLeft"></span> (
-  <span id="timeLeftSeconds"></span> seconds)
+    <span id="timeLeftSeconds"></span> seconds left
   </div>
   <div id="name">
   Quiz: DB trivia
@@ -43,14 +42,29 @@
     display: flex;
     justify-content: space-around;
   }
-  footer #timer { }
+  footer #timer { display: none; }
   footer #leave { }
+  #connectedUsers {
+    list-style: none; margin: 0; padding: 1em;
+    overflow: scroll;
+  }
+  #connectedUsers li {
+    display: inline;
+    margin-right: 1em;
+  }
 </style>
 <script>
   $(function () {
     var socket = io();
-    socket.on('message', function (questions) {
-      console.log('question', questions)
+    socket.on('connectedUsers', function (connectedUsers) {
+      $('ul#connectedUsers').html('')
+      connectedUsers.forEach(function(user) {
+        $('<li>').text(user.display).appendTo($('ul#connectedUsers'))
+      })
+    })
+    var timer;
+    socket.on('room-{{roomid}}-questions', function (questions) {
+      console.log('questions', questions)
       var $answers = $('#answers').html('')
       questions.forEach(function (question, index) {
         $answers.append(
@@ -65,13 +79,20 @@
         );
       })
       var endTime = questions[0].endtime
-      setInterval(function () {
-        // time in readable format
-        $('#timeLeft').text(moment(endTime).fromNow())
+      $('#answercontainer').show()
+      $('#timeLeftSeconds').text(moment(endTime).diff(moment(), 'seconds'))
+      $('#timer').show()
+      $('#wait').hide()
+      timer = setInterval(function () {
         // time in seconds
-        $('#timeLeftSeconds').text(
-          moment(endTime).diff(moment(), 'seconds')
-        )
+        var timeLeft = moment(endTime).diff(moment(), 'seconds')
+        if (timeLeft <= 0) {
+          clearInterval(timer)
+          $('#timer').hide()
+          $('#answercontainer').hide()
+          $('#wait').show()
+        }
+        $('#timeLeftSeconds').text(timeLeft)
       }, 1000)
     })
   })

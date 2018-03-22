@@ -3,10 +3,6 @@
   <section>
     <h2>Quizzes</h2>
   </section>
-    <!-- When linking this to the db, you want to put the amount of available quizzes in the size atttribute of the select element
-         You will also need to add an option element for every quiz containing the quiz id
-
-        -->
 
   <form class="drumbleform" id="managequizform" class="drumblequizform" method="post" action="/quiz">
     <section>
@@ -15,14 +11,6 @@
       <option id="{{Id}}" value="{{Id}}">{{Name}} </option>
       {{/each}}
     </select>
-    <!-- <ul>
-      {{#each quizes}}
-      <li data-id="{{Id}}">
-        {{Name}}
-        (<a href="/quiz/{{Id}}">start</a>)
-        </li>
-      {{/each}}
-    </ul> -->
     </section>
     <input name="roomid" type="text" size="10" maxlength="10" >
     <p>{{message}}</p>

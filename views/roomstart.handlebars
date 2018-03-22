@@ -1,6 +1,75 @@
 <main>
   <p>Started room id: {{roomid}}</p>
-  <form class="drumbleform" id="roomstartsubmit" class="drumblequizform">
-    <input id="startquiz" type="submit" value="START QUIZ" />
-  </form>
+    <p>
+      <button id="startquiz">Next Question</button>
+    </p>
+  Users:
+  <ul id="connectedUsers"></ul>
+  <div id="question"></div>
+  <ul id="answers"></ul>
+  <div id="time"></div>
 </main>
+<style>
+  #connectedUsers {
+    list-style: none; margin: 0; padding: 1em;
+    overflow: scroll;
+  }
+  #connectedUsers li {
+    display: inline;
+    margin-right: 1em;
+  }
+  .correct {
+    background: green!important;
+  }
+</style>
+
+<script>
+  $(function () {
+    var socket = io();
+    var timer;
+    socket.on('room-{{roomid}}', function (connectedUser) {
+      $('<li>').text(connectedUser).appendTo($('ul#connectedUsers'))
+    })
+    var correct;
+    socket.on('correct', function(_correct) {
+      correct = _correct
+    })
+    socket.on('time', function (endtime) {
+      $('#startquiz').hide()
+      $('#time').text(moment(endtime).diff(moment(), 'seconds'))
+      timer = setInterval(function () {
+        // time in seconds
+        var timeLeft = moment(endtime).diff(moment(), 'seconds')
+        if (timeLeft <= 0) {
+          clearInterval(timer)
+          $('#startquiz').show()
+          socket.emit('GetLastQuestionStats')
+          correct.forEach(function(correctAnswer){
+            $('li[data-question-id="' + correctAnswer.answer_id + '"]').addClass('correct')
+          })
+        }
+        $('#time').text(timeLeft)
+      }, 1000)
+    })
+    socket.on('LastQuestionStats', function(stats) {
+      stats.stats.forEach(function(stat) {
+        $('li[data-question-id="'+stat.answer_id+'"]').append(stat.answer_count)
+      });
+    })
+    socket.on('question', function (questions) {
+      console.log(questions)
+      $('#question').text(questions[0].question)
+      var $answers = $('#answers').html('')
+      questions.forEach(function (question, index) {
+        $answers.append(
+          $('<li>')
+            .attr('data-question-id', question.answerid)
+            .text(String.fromCharCode(97 + index) + ' ' + question.answer) // 0->a, 1->b...
+        );
+      })
+    })
+    $('#startquiz').click(function () {
+      socket.emit('StartQuiz')
+    })
+  })
+</script>
