@@ -46,11 +46,16 @@ app.use(session);
 // Share session with io sockets
 io.use(sharedsession(session));
 
+// get config from env, check .env (or .env.example)
+const dbConfig = {
+  connectionString: process.env.DB_URI
+};
+// if ssl allow unauthorized certificates
+if (dbConfig.connectionString.indexOf('ssl') !== -1) {
+  dbConfig.ssl = { rejectUnauthorized: true };
+}
+const dbclient = new Client(dbConfig);
 // connect to the PostgreSQL server
-const dbclient = new Client({
-  connectionString: process.env.DB_URI,
-  ssl: { rejectUnauthorized: true }
-});
 dbclient.connect();
 Queries.SetDbClient(dbclient);
 

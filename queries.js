@@ -415,10 +415,10 @@
         a."Id" "AnswerId",
         a."Content" "Answer",
         aqpr.endtime
-        from "r0729373-drumblequiz".active_questions_per_room aqpr
-        inner join "r0729373-drumblequiz"."QuestionInstance" qi
+        from "${schema}".active_questions_per_room aqpr
+        inner join "${schema}"."QuestionInstance" qi
         on (qi."Id" = aqpr.questioninstanceid)
-        inner join "r0729373-drumblequiz"."Answer" a
+        inner join "${schema}"."Answer" a
         on (qi."QuestionId" = a."QuestionId")
         where aqpr."RoomId" = $1`,
         [roomId]).then(res => {
