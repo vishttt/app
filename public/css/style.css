@@ -331,12 +331,13 @@ ul#answers :nth-child(1){
     background-repeat: no-repeat;
     background-size: 15rem 15rem;
     background-position: center;
- 
+    border: 1rem solid #BBBBDD; 
+
 }
 
 ul#answers :nth-child(1).selected{
-
-    background-color: #9999BB;
+    border: 1rem solid #9999BB; 
+    
 }
 
 ul#answers :nth-child(2){
@@ -347,11 +348,13 @@ ul#answers :nth-child(2){
     background-repeat: no-repeat;
     background-size: 15rem 15rem;
     background-position: center;
+    border: 1rem solid #FFFDDD; 
 }
 
 ul#answers :nth-child(2).selected{
 
-    background-color: #EEEE77;
+    
+    border: 1rem solid #EEEE77; 
 }
 
 ul#answers :nth-child(3){
@@ -361,11 +364,12 @@ ul#answers :nth-child(3){
     background-repeat: no-repeat;
     background-size: 15rem 15rem;
     background-position: center;
+    border: 1rem solid #DDFFDD; 
 }
 
 ul#answers :nth-child(3).selected{
 
-    background-color: #AAFFAA;
+    border: 1rem solid #AAFFAA; 
 }
 
 ul#answers :nth-child(4){
@@ -375,11 +379,12 @@ ul#answers :nth-child(4){
     background-repeat: no-repeat;
     background-size: 15rem 15rem;
     background-position: center;
+    border: 1rem solid #FFEEEE; 
 }
 
 ul#answers :nth-child(4).selected{
 
-    background-color: #FFAAAA;
+    border: 1rem solid #FFAAAA; 
 }
 
 
