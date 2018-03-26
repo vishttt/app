@@ -49,6 +49,7 @@
     var timer;
     socket.on('room-{{roomid}}-questions', function (questions) {
       console.log('questions', questions)
+      window.questions = questions
       var $answers = $('#answers').html('')
       questions.forEach(function (question, index) {
         $answers.append(

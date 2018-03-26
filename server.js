@@ -1,6 +1,9 @@
 // env will be stored in an .env file, edit it with the correct db credentials
 require('dotenv').config();
 
+// f you timezone
+process.env.TZ = 'Europe/Brussels'
+
 const { Client } = require('pg');
 const path = require('path');
 const express = require('express');
@@ -59,6 +62,9 @@ const dbclient = new Client(dbConfig);
 dbclient.connect();
 Queries.SetDbClient(dbclient);
 
+// set correct timezone for queries to db
+dbclient.query(`set time zone 'Europe/Brussels';`);
+
 // listen on all watchers
 const query = dbclient.query('LISTEN watchers');
 
@@ -97,6 +103,12 @@ app.get('/', (req, res) => {
     res.render('enterroom');
   }
 });
+
+app.get('/now', (req, res) => {
+    const query = dbclient.query(`select now()`).then((r) => {
+      res.send({ serverTime: new Date(), dbTime: r.rows[0].now.toString()})
+    })
+})
 
 app.get('/login', (req, res) => {
   res.render('login', { hideUser: true });

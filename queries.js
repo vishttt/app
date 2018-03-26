@@ -168,7 +168,7 @@
           [Id]
         )
         .then(res => {
-          return res;
+          return res.rows;
         })
         .catch(e => {
           console.error(e.stack);
