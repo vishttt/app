@@ -398,6 +398,7 @@ ul#answers li {
     font-size: 2.5rem;
 }
 
+#timer { display: none; }
 
 /* 
  * QUESTION DISPLAY PAGE (not responsive)

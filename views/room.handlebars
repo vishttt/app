@@ -1,5 +1,15 @@
 <main>
 
+  <div id="timer">
+    <span id="timeLeftSeconds"></span> seconds left
+  </div>
+  <div id="name"></div>
+  <div id="leave">
+    <form action="/leave" method="post">
+      <input type="submit" value="leave">
+    </form>
+  </div>
+
   <div class="bouncing-loader" id="wait">
     <div></div>
     <div></div>
@@ -13,37 +23,11 @@
     </ul>
   </div>
 </main>
-
-<footer>
-  <div id="timer">
-    <span id="timeLeftSeconds"></span> seconds left
-  </div>
-  <div id="name">
-  Quiz: DB trivia
-  </div>
-  <div id="leave">
-    <form action="/leave" method="post">
-      <input type="submit" value="leave">
-    </form>
-  </div>
-</footer>
 <style>
   #answercontainer {
     display: none;
   }
   /*#timer { display: none }*/
-  footer {
-    position: absolute;
-    bottom: 0;
-    left: 0; right: 0;
-    background: #9dadcf;
-    color: white;
-    padding: 1em 0;
-    display: flex;
-    justify-content: space-around;
-  }
-  footer #timer { display: none; }
-  footer #leave { }
   #connectedUsers {
     list-style: none; margin: 0; padding: 1em;
     overflow: scroll;
