@@ -316,11 +316,12 @@ main#answercontainer div{
 
 ul#answers {
     display: grid;
-    grid-template-rows: 30rem;
+    grid-template-rows: auto;
     grid-template-columns: repeat(auto-fill, 30rem);
     grid-gap: 3rem;
     padding: 0;
     list-style: none;
+    justify-content: center;
 }
 
 ul#answers :nth-child(1){
