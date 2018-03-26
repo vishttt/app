@@ -264,29 +264,6 @@ main#editquestioncontainer{
     list-style-type: none;
 }
 
-ul#answers {
-    display: flex;
-    justify-content: space-between;
-    padding: 0;
-    list-style: none;
-}
-ul#answers li {
-    width: 100%;
-    text-transform: uppercase;
-    text-align: center;
-    background: #f5f6f9;
-    text-shadow: 0 2px white;
-    font-size: 4em;
-    font-weight: bold;
-    color: #b8bec5;
-    margin: 0 0.3em;
-    padding: 1em 0;
-    cursor: pointer;
-}
-ul#answers li.selected {
-    background: black;
-    color: white;
-}
 footer {
     text-align: center;
 }
@@ -335,24 +312,84 @@ main#answercontainer div{
 */
 
 /* might want to update this with some nice shapes later */
-#answera{
 
-    background-color: #DDDDFF;
+
+ul#answers {
+    display: grid;
+    grid-template-rows: 30rem;
+    grid-template-columns: repeat(auto-fill, 30rem);
+    grid-gap: 3rem;
+    padding: 0;
+    list-style: none;
 }
 
-#answerb{
-
-    background-color: #FFFFDD;
-}
+ul#answers :nth-child(1){
+    
+    background: url(../images/elephant.svg);
+    background-color: #BBBBDD;
+    background-repeat: no-repeat;
+    background-size: 15rem 15rem;
+    background-position: center;
  
-#answerc{
-    background-color: #DDFFDD;
-    
 }
 
-#answerd{
-    background-color: #FFDDFF;
+ul#answers :nth-child(1).selected{
+
+    background-color: #9999BB;
+}
+
+ul#answers :nth-child(2){
+
+    background: url(../images/lion.svg);
     
+    background-color: #FFFDDD;
+    background-repeat: no-repeat;
+    background-size: 15rem 15rem;
+    background-position: center;
+}
+
+ul#answers :nth-child(2).selected{
+
+    background-color: #EEEE77;
+}
+
+ul#answers :nth-child(3){
+
+    background: url(../images/crocodile.svg);
+    background-color: #DDFFDD;
+    background-repeat: no-repeat;
+    background-size: 15rem 15rem;
+    background-position: center;
+}
+
+ul#answers :nth-child(3).selected{
+
+    background-color: #AAFFAA;
+}
+
+ul#answers :nth-child(4){
+
+    background: url(../images/flamingo.svg);
+    background-color: #FFEEEE;
+    background-repeat: no-repeat;
+    background-size: 15rem 15rem;
+    background-position: center;
+}
+
+ul#answers :nth-child(4).selected{
+
+    background-color: #FFAAAA;
+}
+
+
+ul#answers li {
+    text-align: center;
+
+    width: 30rem;
+    height: 20rem;
+    cursor: pointer;
+
+    font-size: 2.5rem;
 }
 
 
