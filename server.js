@@ -1,6 +1,9 @@
 // env will be stored in an .env file, edit it with the correct db credentials
 require('dotenv').config();
 
+// Check if debug is set
+const DEBUG = process.env.DEBUG ? true : false;
+
 // f you timezone
 process.env.TZ = 'Europe/Brussels'
 
@@ -17,6 +20,8 @@ var exphbs = require('express-handlebars');
 
 const schema = process.env.DB_SCHEMA;
 const port = process.env.PORT || 3000;
+
+const mail = require('./mailer').mail
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -117,20 +122,84 @@ app.get('/now', (req, res) => {
 app.get('/login', (req, res) => {
   res.render('login', { hideUser: true });
 });
-app.post('/login', (req, res) => {
-  if (req.body.username && req.body.username.length > 0) {
-    req.session.user = req.body.username;
+app.get('/login/:loginHash', (req, res) => {
+  const loginHash = req.params.loginHash;
+  if (loginHash.length < 10) {
+    return res.render('login', {
+      hideUser: true,
+      message: 'invalid login hash'
+    });
+  }
 
-    // if we're coming from an other page, redirect
-    if (req.body.redirectTo) res.redirect(req.body.redirectTo);
-    else res.redirect('/');
-  } else {
-    res.render('login', {
+  Queries.GetUserByLoginHash(loginHash).then(r => {
+    if (r) {
+      req.session.user = r.Id;
+      return res.redirect('/');
+    }
+    return res.render('login', {
+      hideUser: true,
+      message: 'invalid login hash'
+    });
+  })
+});
+
+app.post('/login', (req, res) => {
+  const email = req.body.email;
+  const userid = email.split('@')[0];
+  const domain = email.split('@')[1];
+
+  if (!email || email.length < 4) {
+    return res.render('login', {
       hideUser: true,
       message: 'invalid login'
     });
   }
+
+  // in debug mode just login
+  if (DEBUG) {
+    req.session.user = email.split('@')[0];
+    return res.redirect(req.body.redirectTo ? req.body.redirectTo : '/');
+  }
+
+  // only allow ucll to login
+  if (false) {
+    if (domain != 'student.ucll.be' && domain != 'ucll.be') {
+      return res.render('login', {
+        hideUser: true,
+        message: 'please use an ucll email address'
+      });
+    }
+  }
+
+  // create a random login hash
+  const loginHash = require('crypto')
+    .createHash('md5')
+    .update(Math.random().toString())
+    .digest('hex');
+  Queries.GetUserByEmail(email).then((user) => {
+    let updateUserHashPromis;
+    if (!user) {
+      updateUserHashPromis = Queries.AddUser(userid, email, true, userid, loginHash);
+    } else {
+      updateUserHashPromis = Queries.EditUserLoginHash(email, loginHash);
+    }
+    updateUserHashPromis.then((r) => {
+      mail(email, 'Login to DrumbleQuiz', `
+      Login to drumblequiz using next url:
+      ${req.protocol}://${req.get('host')}/login/${loginHash}
+      `, `
+      Login to drumblequiz using next url:
+      <a href="${req.protocol}://${req.get('host')}/login/${loginHash}">
+      ${req.protocol}://${req.get('host')}/login/${loginHash}
+      </a>`)
+      return res.render('login', {
+        hideUser: true,
+        message: 'check your email for a login url'
+      });
+    })
+  })
 });
+
 // logout the user
 app.get('/logout', (req, res) => {
   // destroy session, and when done redirect

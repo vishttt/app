@@ -9,6 +9,41 @@
       dbclient = client;
     },
 
+    GetUserByEmail: async (email) => {
+      return dbclient.query(
+        `SELECT "Id", "CanCreateQuiz" FROM "${schema}"."User" WHERE email = $1`, [email]).then((res) => {
+          return res.rows[0]
+        }).catch(e => {
+          console.error('error at GetUserByEmail', email, e.stack);
+        });
+    },
+    GetUserByLoginHash: async (loginHash) => {
+      return dbclient.query(
+        `SELECT "Id", "CanCreateQuiz" FROM "${schema}"."User" WHERE "loginHash" = $1`, 
+        [loginHash]).then((res) => {
+          return res.rows[0]
+        }).catch(e => {
+          console.error('error at GetUserByLoginHash', loginHash, e.stack);
+        });
+    },
+    AddUser: async (Id, email, canCreateQuiz, username, loginHash) => {
+      return dbclient.query(
+        `INSERT INTO "${schema}"."User"("Id", "email", "CanCreateQuiz", "loginHash") VALUES ($1, $2, $3, $4) RETURNING "Id"`,
+        [Id, email, canCreateQuiz, loginHash]).then((res) => {
+          return res.rows[0]
+        }).catch(e => {
+          console.error('error at AddUser', email, e.stack);
+        });
+    },
+    EditUserLoginHash: async (email, loginHash) => {
+      return dbclient.query(
+        `UPDATE "${schema}"."User" SET "loginHash" = $2 WHERE "email" = $1`,
+        [email, loginHash]).then((res) => {
+          return res.rows[0]
+        }).catch(e => {
+          console.error('error at AddUser', email, e.stack);
+        });
+    },
     AddQuestion: async function(
       title,
       question,
