@@ -144,7 +144,7 @@ app.get('/login/:loginHash', (req, res) => {
 });
 
 app.post('/login', (req, res) => {
-  const email = req.body.email;
+  const email = req.body.email.toLowerCase();
   const userid = email.split('@')[0];
   const domain = email.split('@')[1];
 
