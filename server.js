@@ -74,6 +74,10 @@ dbclient.on('notification', msg => {
   io.emit('message', msg.payload);
 });
 
+// seperate router for api
+const apiRouter = require('./api')
+app.use('/api', apiRouter);
+
 // always pass current user to templates
 app.use(function(req, res, next) {
   // set session user as locals,
