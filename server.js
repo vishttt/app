@@ -5,7 +5,7 @@ require('dotenv').config();
 const DEBUG = process.env.DEBUG ? true : false;
 
 // f you timezone
-process.env.TZ = 'Europe/Brussels'
+process.env.TZ = 'Europe/Brussels';
 
 const { Client } = require('pg');
 const path = require('path');
@@ -21,7 +21,7 @@ var exphbs = require('express-handlebars');
 const schema = process.env.DB_SCHEMA;
 const port = process.env.PORT || 3000;
 
-const mail = require('./mailer').mail
+const mail = require('./mailer').mail;
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -80,7 +80,7 @@ dbclient.on('notification', msg => {
 });
 
 // seperate router for api
-const apiRouter = require('./api')
+const apiRouter = require('./api');
 app.use('/api', apiRouter);
 
 // always pass current user to templates
@@ -114,10 +114,10 @@ app.get('/', (req, res) => {
 });
 
 app.get('/now', (req, res) => {
-    const query = dbclient.query(`select now()`).then((r) => {
-      res.send({ serverTime: new Date(), dbTime: r.rows[0].now.toString()})
-    })
-})
+  const query = dbclient.query(`select now()`).then((r) => {
+    res.send({ serverTime: new Date(), dbTime: r.rows[0].now.toString()});
+  });
+});
 
 app.get('/login', (req, res) => {
   res.render('login', { hideUser: true });
@@ -173,9 +173,9 @@ app.post('/login', (req, res) => {
 
   // create a random login hash
   const loginHash = require('crypto')
-    .createHash('md5')
-    .update(Math.random().toString())
-    .digest('hex');
+        .createHash('md5')
+        .update(Math.random().toString())
+        .digest('hex');
   Queries.GetUserByEmail(email).then((user) => {
     let updateUserHashPromis;
     if (!user) {
