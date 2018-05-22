@@ -179,7 +179,7 @@ app.post('/login', (req, res) => {
   Queries.GetUserByEmail(email).then((user) => {
     let updateUserHashPromis;
     if (!user) {
-      updateUserHashPromis = Queries.AddUser(userid, email, true, userid, loginHash);
+      updateUserHashPromis = Queries.AddUser(userid, email, false, userid, loginHash);
     } else {
       updateUserHashPromis = Queries.EditUserLoginHash(email, loginHash);
     }
