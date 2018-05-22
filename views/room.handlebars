@@ -54,7 +54,7 @@
       questions.forEach(function (question, index) {
         $answers.append(
           $('<li>')
-            .text(String.fromCharCode(97 + index)) // 0->a, 1->b...
+            .text(/*String.fromCharCode(97 + index)*/'') // 0->a, 1->b...
             .click(function () {
               console.log('selected', question)
               $('#answers>li').removeClass('selected')
