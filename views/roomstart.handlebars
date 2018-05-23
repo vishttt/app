@@ -3,11 +3,11 @@
     <p>
       <button id="startquiz">Next Question</button>
     </p>
-  Users:
-  <ul id="connectedUsers"></ul>
   <div id="question"></div>
   <ul id="answers"></ul>
   <div id="time"></div>
+  Users:
+  <ul id="connectedUsers"></ul>
 </main>
 <style>
   #connectedUsers {
@@ -17,6 +17,23 @@
   #connectedUsers li {
     display: inline;
     margin-right: 1em;
+  }
+  #question {
+    font-size: 4em;
+    text-align: center;
+    font-weight: bold;
+  }
+  #answers {
+    font-size: 5em;
+    text-align: center;
+    font-weight: bold;
+    text-transform: uppercase;
+  }
+
+  #time {
+    font-size: 5em;
+    text-align: center;
+    font-weight: bold;
   }
   .correct {
     background: green!important;
@@ -53,7 +70,7 @@
     })
     socket.on('LastQuestionStats', function(stats) {
       stats.stats.forEach(function(stat) {
-        $('li[data-question-id="'+stat.answer_id+'"]').append(stat.answer_count)
+        $('li[data-question-id="'+stat.answer_id+'"]').append("<br/>" + stat.answer_count)
       });
     })
     socket.on('question', function (questions) {
@@ -64,7 +81,7 @@
         $answers.append(
           $('<li>')
             .attr('data-question-id', question.answerid)
-            .text(String.fromCharCode(97 + index) + ' ' + question.answer) // 0->a, 1->b...
+            .text(/*String.fromCharCode(97 + index) + ' ' + */ question.answer) // 0->a, 1->b...
         );
       })
     })

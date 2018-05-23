@@ -15,7 +15,7 @@
     <div></div>
     <div></div>
   </div>
-  <ul id="connectedUsers"></ul>
+  <!-- <ul id="connectedUsers"></ul> -->
   <div id="answercontainer">
     <ul id="answers">
       <li>a</li>
@@ -36,8 +36,14 @@
     display: inline;
     margin-right: 1em;
   }
+  #timer {
+    font-size: 3em;
+    text-align: center;
+    font-weight: bold;
+  }
 </style>
 <script>
+//push
   $(function () {
     var socket = io();
     socket.on('connectedUsers', function (connectedUsers) {
@@ -54,7 +60,7 @@
       questions.forEach(function (question, index) {
         $answers.append(
           $('<li>')
-            .text(String.fromCharCode(97 + index)) // 0->a, 1->b...
+            .text(/*String.fromCharCode(97 + index)*/'') // 0->a, 1->b...
             .click(function () {
               console.log('selected', question)
               $('#answers>li').removeClass('selected')
