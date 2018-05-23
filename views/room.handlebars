@@ -24,18 +24,23 @@
   </div>
 </main>
 <style>
-  #answercontainer {
-    display: none;
-  }
-  /*#timer { display: none }*/
-  #connectedUsers {
-    list-style: none; margin: 0; padding: 1em;
-    overflow: scroll;
-  }
-  #connectedUsers li {
-    display: inline;
-    margin-right: 1em;
-  }
+#answercontainer {
+  display: none;
+}
+/*#timer { display: none }*/
+#connectedUsers {
+  list-style: none; margin: 0; padding: 1em;
+  overflow: scroll;
+}
+#connectedUsers li {
+  display: inline;
+  margin-right: 1em;
+}
+#timer {
+  font-size: 3em;
+  text-align: center;
+  font-weight: bold;
+}
 </style>
 <script>
   $(function () {
@@ -51,10 +56,21 @@
       console.log('questions', questions)
       window.questions = questions
       var $answers = $('#answers').html('')
+
+      function compare(a,b) {
+        if (a.AnswerId < b.AnswerId)
+          return -1;
+        if (a.AnswerId > b.AnswerId)
+          return 1;
+        return 0;
+      }
+
+      questions.sort(compare);
+
       questions.forEach(function (question, index) {
         $answers.append(
           $('<li>')
-            .text(/*String.fromCharCode(97 + index)*/'') // 0->a, 1->b...
+            .text('') // 0->a, 1->b...
             .click(function () {
               console.log('selected', question)
               $('#answers>li').removeClass('selected')

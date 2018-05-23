@@ -10,28 +10,34 @@
   <ul id="connectedUsers"></ul>
 </main>
 <style>
-  #connectedUsers {
-    list-style: none; margin: 0; padding: 1em;
-    overflow: scroll;
-  }
-  #connectedUsers li {
-    display: inline;
-    margin-right: 1em;
-  }
-  #question {
-    font-size: 4em;
-    text-align: center;
-    font-weight: bold;
-  }
-  #answers {
-    font-size: 3em;
-    text-align: center;
-    font-weight: bold;
-    text-transform: uppercase;
-  }
-  .correct {
-    background: green!important;
-  }
+#connectedUsers {
+  list-style: none; margin: 0; padding: 1em;
+  overflow: scroll;
+}
+#connectedUsers li {
+  display: inline;
+  margin-right: 1em;
+}
+#question {
+  font-size: 3em;
+  text-align: center;
+  font-weight: bold;
+}
+#answers {
+  font-size: 4em;
+  text-align: center;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+#time {
+  font-size: 4em;
+  text-align: center;
+  font-weight: bold;
+}
+.correct {
+  background: green!important;
+}
 </style>
 
 <script>
@@ -71,11 +77,23 @@
       console.log(questions)
       $('#question').text(questions[0].question)
       var $answers = $('#answers').html('')
+
+      function compare(a,b) {
+        if (a.answerid < b.answerid)
+          return -1;
+        if (a.answerid > b.answerid)
+          return 1;
+        return 0;
+      }
+
+      questions.sort(compare);
+
       questions.forEach(function (question, index) {
+        console.log(question);
         $answers.append(
           $('<li>')
             .attr('data-question-id', question.answerid)
-            .text(/*String.fromCharCode(97 + index) + ' ' + */question.answer) // 0->a, 1->b...
+            .text(/*String.fromCharCode(97 + index) + ' ' + */ question.answer) // 0->a, 1->b...
         );
       })
     })
