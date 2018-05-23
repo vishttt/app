@@ -19,7 +19,7 @@
     },
     GetUserByLoginHash: async (loginHash) => {
       return dbclient.query(
-        `SELECT "Id", "CanCreateQuiz" FROM "${schema}"."User" WHERE "loginHash" = $1`, 
+        `SELECT "Id", "CanCreateQuiz" FROM "${schema}"."User" WHERE "loginHash" = $1`,
         [loginHash]).then((res) => {
           return res.rows[0]
         }).catch(e => {
@@ -414,19 +414,21 @@
       return module.exports.GetLastQuestionId(roomId).then(res => {
         return dbclient
           .query(
-            `SELECT answer."Id" AS answer_id, COALESCE(votes.count, 0) AS answer_count
-                                       FROM "${schema}"."QuestionInstance" AS qi,
-                                       "${schema}"."Answer" AS answer
-                                       LEFT JOIN 	(	SELECT count(*) as count, "QuestionInstanceId" AS qiid, "AnswerId" AS ansid
-                                       FROM "${schema}"."AnswerInstance"
-                                       GROUP BY "QuestionInstanceId", "AnswerId"
-                                       ) AS votes ON votes.ansid = answer."Id"
-                                       WHERE qi."QuestionId" = answer."QuestionId"
-                                       AND COALESCE(votes.qiid, qi."Id") = qi."Id"
-                                       AND qi."Id" = $1`,
+            `SELECT answers.aid AS answer_id, COALESCE(votes.count, 0)
+              FROM
+              (SELECT qi."Id" AS qiid, answer."Id" as aid
+              FROM "${schema}"."QuestionInstance" AS qi,
+              "${schema}"."Answer" AS answer
+              WHERE qi."QuestionId" = answer."QuestionId"
+              AND qi."Id" = $1) AS answers
+              LEFT JOIN (SELECT count(*) as count, "QuestionInstanceId" AS qiid, "AnswerId" AS ansid
+              FROM "${schema}"."AnswerInstance"
+              GROUP BY "QuestionInstanceId", "AnswerId"
+              ) AS votes ON votes.ansid = answers.aid AND votes.qiid = answers.qiid`,
             [res]
           )
           .then(res2 => {
+            console.log(res2.rows);
             return res2;
           });
       });

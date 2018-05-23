@@ -332,6 +332,8 @@ io.on('connection', socket => {
 
   socket.on('select', answer => {
     // when a user selects an answer
+    console.log(answer);
+    //Queries.CreateAnswerInstanceOnActiveQuestion(roomid,userInstanceId,answer.AnswerId);
     const query = dbclient.query(
       `insert into "${schema}"."AnswerInstance" ("QuestionInstanceId", "AnswerId", "UserInstanceId") values ($1, $2, $3)`,
       [answer.QuestionInstanceId, answer.AnswerId, userInstanceId]
@@ -419,6 +421,7 @@ io.on('connection', socket => {
   socket.on('GetLastQuestionStats', msg => {
     Queries.GetLastQuestionStatistics(roomid).then(result => {
       socket.emit('LastQuestionStats', { stats: result.rows });
+      //console.log(result.rows);
     });
   });
 
