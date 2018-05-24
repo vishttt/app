@@ -444,6 +444,7 @@ io.on('connection', socket => {
   socket.on('StartQuiz', msg => {
     Queries.CreateQuestionInstance(roomid).then(result => {
       Queries.GetCurrentAnswers(roomid).then(questionInstance => {
+        console.log(questionInstance);
         const questionInstanceId = questionInstance[0].QuestionInstanceId
         Queries.GetCorrectAnswers(questionInstanceId).then(correct => {
           socket.emit('correct', correct.rows);
