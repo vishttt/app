@@ -1,0 +1,35 @@
+# Caddy server is an http/2 web server with autmatic HTTPS and other nice plugins
+# https://caddyserver.com/
+
+# Url to serve
+drumblequiz.party {
+
+				# Where the public assets are located
+        root /apps/drumble/public
+
+				# An email address for Let's Encrypt
+        tls letsencrypt@drumblequiz.party
+
+				# Because we proxy caddyserver -> nodejs we add extra headers
+        realip
+
+				# git plugin to do Continuous Deployment, not neccesary but nice
+        git {
+                repo     git@github.com:drumblequiz/app
+                key      /apps/.ssh/id_rsa
+                path     ../
+								# privet is the secret you setup at github webhooks for auto-deploy
+                hook    /webhook privet
+        }
+
+				# the real important part, proxy requests to localhost, port 3000
+				# where the nodejs process is listening
+        proxy / localhost:3000 {
+								# also proxy websockets
+                websocket
+
+								# Passes thru host information from the original request
+								#   as most backend apps would expect.
+                transparent
+        }
+}
