@@ -317,7 +317,7 @@ main#answercontainer div{
 ul#answers {
     display: grid;
     grid-template-rows: auto;
-    grid-template-columns: repeat(auto-fill, 30rem);
+    grid-template-columns: 15rem 15rem;
     grid-gap: 3rem;
     padding: 0;
     list-style: none;
@@ -329,7 +329,7 @@ ul#answers :nth-child(1){
     background: url(../images/elephant.svg);
     background-color: #BBBBDD;
     background-repeat: no-repeat;
-    background-size: 15rem 15rem;
+    background-size: 10rem 10rem;
     background-position: center;
     border: 1rem solid #BBBBDD; 
 
@@ -346,7 +346,7 @@ ul#answers :nth-child(2){
     
     background-color: #FFFDDD;
     background-repeat: no-repeat;
-    background-size: 15rem 15rem;
+    background-size: 10rem 10rem;
     background-position: center;
     border: 1rem solid #FFFDDD; 
 }
@@ -362,7 +362,7 @@ ul#answers :nth-child(3){
     background: url(../images/crocodile.svg);
     background-color: #DDFFDD;
     background-repeat: no-repeat;
-    background-size: 15rem 15rem;
+    background-size: 10rem 10rem;
     background-position: center;
     border: 1rem solid #DDFFDD; 
 }
@@ -377,7 +377,7 @@ ul#answers :nth-child(4){
     background: url(../images/flamingo.svg);
     background-color: #FFEEEE;
     background-repeat: no-repeat;
-    background-size: 15rem 15rem;
+    background-size: 10rem 10rem;
     background-position: center;
     border: 1rem solid #FFEEEE; 
 }
@@ -391,8 +391,8 @@ ul#answers :nth-child(4).selected{
 ul#answers li {
     text-align: center;
 
-    width: 30rem;
-    height: 20rem;
+    width: 12rem;
+    height: 12rem;
     cursor: pointer;
 
     font-size: 2.5rem;
@@ -484,14 +484,6 @@ main#questioncontainer input{
 
 @media only screen and (min-width: 480px) {
     
-    /*
-    main#answercontainer{
-    
-        display: grid;
-        grid-template-columns: repeat(auto-fit, 30rem);
-    }
-    */
-    
     main#answercontainer div{
         justify-self: fill;
     }
@@ -524,3 +516,51 @@ main#questioncontainer input{
         grid-template-columns: 30rem;
     }
 }
+
+@media only screen and (min-width: 720px) {
+
+
+	ul#answers :nth-child(1){
+		background-size: 12rem 12rem;
+
+	}
+	ul#answers :nth-child(2){
+		background-size: 12rem 12rem;
+	}
+	ul#answers :nth-child(3){
+		background-size: 12rem 12rem;
+	}
+	ul#answers :nth-child(4){
+		background-size: 12rem 12rem;
+	}
+	ul#answers li {
+		width: 15rem;
+		height: 15rem;
+	}
+}
+
+@media only screen and (min-width: 1333px) {
+
+	ul#answers {
+		grid-template-columns: repeat(auto-fit, 30rem);
+	}
+
+	ul#answers :nth-child(1){
+		background-size: 15rem 15rem;
+
+	}
+	ul#answers :nth-child(2){
+		background-size: 15rem 15rem;
+	}
+	ul#answers :nth-child(3){
+		background-size: 15rem 15rem;
+	}
+	ul#answers :nth-child(4){
+		background-size: 15rem 15rem;
+	}
+	ul#answers li {
+		width: 20rem;
+		height: 20rem;
+	}
+}
+
