@@ -19,7 +19,6 @@
     },
     GetUserByLoginHash: async (loginHash) => {
       return dbclient.query(
-        `SELECT "Id", "CanCreateQuiz" FROM "${schema}"."User" WHERE "loginHash" = $1`, 
         [loginHash]).then((res) => {
           return res.rows[0]
         }).catch(e => {
@@ -381,8 +380,7 @@
       return dbclient
         .query(
           `INSERT INTO "${schema}"."UserInstance"( "DisplayName", "UserId", "RoomId") VALUES ($1, $2, $3) RETURNING "Id"`,
-          [nickname, Id, roomId],
-          Id
+          [nickname, Id, roomId]
         )
         .then(res => {
           return res.rows[0].Id;
