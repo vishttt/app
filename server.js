@@ -443,15 +443,12 @@ io.on('connection', socket => {
 
   socket.on('StartQuiz', msg => {
     Queries.CreateQuestionInstance(roomid).then(result => {
-      Queries.GetCurrentAnswers(roomid).then(questionInstance => {
-        console.log(questionInstance);
-        const questionInstanceId = questionInstance[0].QuestionInstanceId
-        Queries.GetCorrectAnswers(questionInstanceId).then(correct => {
+        Queries.GetCorrectAnswers(result).then(correct => {
           socket.emit('correct', correct.rows);
         })
         io.emit('room-' + roomid + '-questions', questionInstance);
         socket.emit('time', questionInstance[0].endtime)
-      })
+
       Queries.GetLastQuestionInstance(roomid).then(result => {
         socket.emit('question', result);
       })
