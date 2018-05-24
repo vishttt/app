@@ -443,7 +443,7 @@ io.on('connection', socket => {
 
   socket.on('StartQuiz', msg => {
     Queries.CreateQuestionInstance(roomid).then(result => {
-      sleep(500);
+      sleep(1000).then( a => {
       Queries.GetCurrentAnswers(roomid).then(questionInstance => {
         console.log(questionInstance);
         const questionInstanceId = questionInstance[0].QuestionInstanceId
@@ -456,6 +456,7 @@ io.on('connection', socket => {
       Queries.GetLastQuestionInstance(roomid).then(result => {
         socket.emit('question', result);
       })
+      });
     });
   });
 
