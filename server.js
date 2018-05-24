@@ -447,10 +447,8 @@ io.on('connection', socket => {
       Queries.GetCurrentAnswers(roomid).then(questionInstance => {
         console.log(questionInstance);
         const questionInstanceId = questionInstance[0].QuestionInstanceId
-        Queries.GetCorrectAnswers(roomid).then(correct => {
-          sleep(1000).then( b => {
-            socket.emit('correct', correct.rows);
-          });
+        Queries.GetCorrectAnswers(questionInstanceId).then(correct => {
+          socket.emit('correct', correct.rows);
         })
         io.emit('room-' + roomid + '-questions', questionInstance);
         socket.emit('time', questionInstance[0].endtime)
