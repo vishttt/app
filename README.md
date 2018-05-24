@@ -4,7 +4,7 @@
 *In order to setup locally, to run and/or develop follow next steps*
 
 ### NodeJS
-Download and install NodeJS locally for your platform: [https://nodejs.org](https://nodejs.org)
+Download and install NodeJS locally for your platform: [nodejs.org](https://nodejs.org)
 
 Open a terminal and verify it's working by typing `node --version` and `npm --version`. Both should return a version (nodejs v9.3.0, npm 5.7.1 at the time of writing this)
 
@@ -13,7 +13,7 @@ You can use a remote postgresql instalation (school one)
 
 *Otherwise*:
 
-Install postgresql locally: [https://www.postgresql.org](https://www.postgresql.org)
+Install postgresql locally: [postgresql.org](https://www.postgresql.org)
 
 ### Config
 Copy paste the `.env.example` to `.env`. 
@@ -34,7 +34,7 @@ Make them executable `chmod +x ./*.sh`.
 Run setup using `./setup.sh`
 
 ### Manually, aka what setup.sh does
-Import the [database.sql](database.sql) file into your database, make sure correct permissions are given.
+Import the [database.sql](./database.sql) file into your database, make sure correct permissions are given.
 
 Open your terminal and navigate to project root (where the package.json file is) and type `npm install` to install all dependencies.
 
@@ -43,8 +43,15 @@ In order to run the project just navigate in your terminal to project root (wher
 
 This will launch the interface on [localhost:3000](http://localhost:3000).
 
+## Production
+For production it's advised to have a webserver in front of the nodejs process. And easy way to achieve that is using [Caddy-server](https://caddyserver.com/), an example config is [provided](./Caddyserver) .
+
 
 ## Own remarks
 Yeah, migrations would be nice, but time was limited.
 
-Mailgun was used because it was a PoC, to see if it would work with a database backend.
+Mailgun was used because it's quick, easy and reliable. Changing to any other method would be very doable.
+
+## Extras
+Exporting this markdown readme to textile (redmine format):
+`pandoc README.md -t textile -o README.textile`
