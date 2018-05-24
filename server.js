@@ -140,7 +140,7 @@ app.get('/login/:loginHash', (req, res) => {
       hideUser: true,
       message: 'invalid login hash'
     });
-  })
+  });
 });
 
 app.post('/login', (req, res) => {
@@ -191,13 +191,13 @@ app.post('/login', (req, res) => {
       Login to drumblequiz using next url:
       <a href="${req.protocol}://${req.get('host')}/login/${loginHash}">
       ${req.protocol}://${req.get('host')}/login/${loginHash}
-      </a>`)
+      </a>`);
       return res.render('login', {
         hideUser: true,
         message: 'check your email for a login url'
       });
-    })
-  })
+    });
+  });
 });
 
 // logout the user
@@ -528,16 +528,16 @@ io.on('connection', socket => {
       sleep(1000).then( a => {
       Queries.GetCurrentAnswers(roomid).then(questionInstance => {
         console.log(questionInstance);
-        const questionInstanceId = questionInstance[0].QuestionInstanceId
+        const questionInstanceId = questionInstance[0].QuestionInstanceId;
         Queries.GetCorrectAnswers(questionInstanceId).then(correct => {
           socket.emit('correct', correct.rows);
-        })
+        });
         io.emit('room-' + roomid + '-questions', questionInstance);
-        socket.emit('time', questionInstance[0].endtime)
-      })
+        socket.emit('time', questionInstance[0].endtime);
+      });
       Queries.GetLastQuestionInstance(roomid).then(result => {
         socket.emit('question', result);
-      })
+      });
       });
         }
     });
