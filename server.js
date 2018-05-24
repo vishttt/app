@@ -451,6 +451,7 @@ io.on('connection', socket => {
 
       Queries.GetLastQuestionInstance(roomid).then(result => {
         socket.emit('question', result);
+        //
       })
     });
   });
