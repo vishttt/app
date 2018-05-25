@@ -104,7 +104,7 @@ const isAuthenticated = (req, res, next) => {
 
 // when we get a request on / send the index.html page
 app.get('/', (req, res) => {
-  if (req.session.room) {
+  if (req.session.room && req.session.userEnterQuiz) {
     res.render('room', {
       roomid: req.session.room
     });
