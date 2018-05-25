@@ -5,7 +5,7 @@ require('dotenv').config();
 const DEBUG = process.env.DEBUG ? true : false;
 
 // f you timezone
-process.env.TZ = 'Europe/Brussels'
+process.env.TZ = 'Europe/Brussels';
 
 const { Client } = require('pg');
 const path = require('path');
@@ -21,7 +21,7 @@ var exphbs = require('express-handlebars');
 const schema = process.env.DB_SCHEMA;
 const port = process.env.PORT || 3000;
 
-const mail = require('./mailer').mail
+const mail = require('./mailer').mail;
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -75,12 +75,11 @@ const query = dbclient.query('LISTEN watchers');
 
 // when a notification comes up show in console
 dbclient.on('notification', msg => {
-  console.log('notification from db', msg.payload);
   io.emit('message', msg.payload);
 });
 
 // seperate router for api
-const apiRouter = require('./api')
+const apiRouter = require('./api');
 app.use('/api', apiRouter);
 
 // always pass current user to templates
@@ -96,9 +95,18 @@ const isAuthenticated = (req, res, next) => {
   if (req.session.user) return next();
 
   // if not show login, and save path
-  res.render('login', {
+  return res.render('login', {
     hideUser: true,
     redirectTo: req.path
+  });
+};
+
+const canUserCreateQuiz = (req, res, next) => {
+  if (req.session.canCreateQuiz) return next();
+  // if not show login, and save path
+  return res.render('error', {
+    hideUser: true,
+    message: 'You do not have permission to manage quizes'
   });
 };
 
@@ -109,15 +117,17 @@ app.get('/', (req, res) => {
       roomid: req.session.room
     });
   } else {
-    res.render('enterroom');
+    res.render('enterroom', {
+      canCreateQuiz: req.session.canCreateQuiz
+    });
   }
 });
 
 app.get('/now', (req, res) => {
     const query = dbclient.query(`select now()`).then((r) => {
-      res.send({ serverTime: new Date(), dbTime: r.rows[0].now.toString()})
-    })
-})
+      res.send({ serverTime: new Date(), dbTime: r.rows[0].now.toString()});
+    });
+});
 
 app.get('/login', (req, res) => {
   res.render('login', { hideUser: true });
@@ -133,6 +143,10 @@ app.get('/login/:loginHash', (req, res) => {
 
   Queries.GetUserByLoginHash(loginHash).then(r => {
     if (r) {
+      if (r.CanCreateQuiz) {
+        // this user can create and manage quizes
+        req.session.canCreateQuiz = true;
+      }
       req.session.user = r.Id;
       return res.redirect('/');
     }
@@ -250,7 +264,7 @@ app.post('/leave', (req, res) => {
   res.redirect('/');
 });
 
-app.get('/manage', isAuthenticated, (req, res) => {
+app.get('/manage', isAuthenticated, canUserCreateQuiz, (req, res) => {
   Queries.GetAllQuizzes(req.session.user).then(r => {
     var sessionmessage = req.session.managequizeserror;
     req.session.managequizeserror = '';
@@ -319,7 +333,7 @@ app.get('/victory', isAuthenticated, (req, res) => {
 
   });
 });
-app.get('/create', isAuthenticated, (req, res) => {
+app.get('/create', isAuthenticated, canUserCreateQuiz, (req, res) => {
   res.render('editquiz', {});
 });
 app.post('/edit', isAuthenticated, (req, res) => {
@@ -527,7 +541,6 @@ io.on('connection', socket => {
       {
       sleep(1000).then( a => {
       Queries.GetCurrentAnswers(roomid).then(questionInstance => {
-        console.log(questionInstance);
         const questionInstanceId = questionInstance[0].QuestionInstanceId;
         Queries.GetCorrectAnswers(questionInstanceId).then(correct => {
           socket.emit('correct', correct.rows);
@@ -689,4 +702,5 @@ function GetLoggedUserId() {
 // listen on the port, by default 3000
 http.listen(port, () => {
   console.log('listening on *:' + port);
+  console.log('Open at: http://localhost:' + port);
 });
