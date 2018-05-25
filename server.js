@@ -213,11 +213,28 @@ app.post('/enterroom', (req, res) => {
       req.session.room = roomid;
       if (req.body.displayName) {
         const displayName = req.body.displayName;
-        Queries.CreateUserInstance(roomid, displayName).then(userInstanceId => {
-          req.session.userInstanceId = userInstanceId;
-          io.emit('room-' + roomid, displayName);
-          res.redirect('/');
-        });
+        Queries.IsRoomAnonymous(roomid).then(isAnonymous => {
+          // For anonymous
+          if(req.session.user === undefined && isAnonymous){ 
+            Queries.CreateUserInstance(roomid, displayName).then(userInstanceId => {
+              req.session.userEnterQuiz = true;
+              req.session.userInstanceId = userInstanceId;
+              io.emit('room-' + roomid, displayName);
+              res.redirect('/');
+            });
+          } else if(req.session.user === undefined){
+            return res.render('setdisplayname', {
+              message: 'Quiz is not anonymous. Please log in'
+            });
+          } else {
+            // Not anonymous
+            Queries.CreateUserInstanceWithId(roomid, displayName, req.session.user).then(userInstanceId => {
+              req.session.userEnterQuiz = true;
+              req.session.userInstanceId = userInstanceId;
+              io.emit('room-' + roomid, displayName);
+              res.redirect('/');
+            });
+          }
       } else {
         res.render('setdisplayname', {
           roomid: roomid
