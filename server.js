@@ -215,7 +215,7 @@ app.post('/enterroom', (req, res) => {
         const displayName = req.body.displayName;
         Queries.IsRoomAnonymous(roomid).then(isAnonymous => {
           // For anonymous
-          if(req.session.user === undefined && isAnonymous){ 
+          if(req.session.user === undefined && isAnonymous){
             Queries.CreateUserInstance(roomid, displayName).then(userInstanceId => {
               req.session.userEnterQuiz = true;
               req.session.userInstanceId = userInstanceId;
@@ -234,7 +234,7 @@ app.post('/enterroom', (req, res) => {
               io.emit('room-' + roomid, displayName);
               res.redirect('/');
             });
-          }
+          }});
       } else {
         res.render('setdisplayname', {
           roomid: roomid
