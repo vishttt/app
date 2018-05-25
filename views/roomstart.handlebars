@@ -51,6 +51,9 @@
     socket.on('correct', function(_correct) {
       correct = _correct
     })
+    socket.on('showScore', function(empty) {
+      window.location.href = "/victory";
+    })
     socket.on('time', function (endtime) {
       $('#startquiz').hide()
       $('#time').text(moment(endtime).diff(moment(), 'seconds'))

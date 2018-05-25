@@ -19,6 +19,7 @@
     },
     GetUserByLoginHash: async (loginHash) => {
       return dbclient.query(
+        `SELECT "Id", "CanCreateQuiz" FROM "${schema}"."User" WHERE "loginHash" = $1`,
         [loginHash]).then((res) => {
           return res.rows[0]
         }).catch(e => {
@@ -295,7 +296,14 @@
           [roomId]
         )
         .then(res => {
-          return res.rows[0].Id;
+          if (res.rows === undefined || res.rows.length == 0)
+          {
+            return (-1);
+          }
+          else
+          {
+            return res.rows[0].Id;
+          }
         });
     },
 

@@ -5,7 +5,7 @@ require('dotenv').config();
 const DEBUG = process.env.DEBUG ? true : false;
 
 // f you timezone
-process.env.TZ = 'Europe/Brussels';
+process.env.TZ = 'Europe/Brussels'
 
 const { Client } = require('pg');
 const path = require('path');
@@ -21,7 +21,7 @@ var exphbs = require('express-handlebars');
 const schema = process.env.DB_SCHEMA;
 const port = process.env.PORT || 3000;
 
-const mail = require('./mailer').mail;
+const mail = require('./mailer').mail
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -80,7 +80,7 @@ dbclient.on('notification', msg => {
 });
 
 // seperate router for api
-const apiRouter = require('./api');
+const apiRouter = require('./api')
 app.use('/api', apiRouter);
 
 // always pass current user to templates
@@ -104,7 +104,7 @@ const isAuthenticated = (req, res, next) => {
 
 // when we get a request on / send the index.html page
 app.get('/', (req, res) => {
-  if (req.session.room && req.session.userEnterQuiz) {
+  if (req.session.room) {
     res.render('room', {
       roomid: req.session.room
     });
@@ -114,10 +114,10 @@ app.get('/', (req, res) => {
 });
 
 app.get('/now', (req, res) => {
-  const query = dbclient.query(`select now()`).then((r) => {
-    res.send({ serverTime: new Date(), dbTime: r.rows[0].now.toString()});
-  });
-});
+    const query = dbclient.query(`select now()`).then((r) => {
+      res.send({ serverTime: new Date(), dbTime: r.rows[0].now.toString()})
+    })
+})
 
 app.get('/login', (req, res) => {
   res.render('login', { hideUser: true });
@@ -144,7 +144,7 @@ app.get('/login/:loginHash', (req, res) => {
 });
 
 app.post('/login', (req, res) => {
-  const email = req.body.email.toLowerCase();
+  const email = req.body.email;
   const userid = email.split('@')[0];
   const domain = email.split('@')[1];
 
@@ -173,9 +173,9 @@ app.post('/login', (req, res) => {
 
   // create a random login hash
   const loginHash = require('crypto')
-        .createHash('md5')
-        .update(Math.random().toString())
-        .digest('hex');
+    .createHash('md5')
+    .update(Math.random().toString())
+    .digest('hex');
   Queries.GetUserByEmail(email).then((user) => {
     let updateUserHashPromis;
     if (!user) {
@@ -213,28 +213,10 @@ app.post('/enterroom', (req, res) => {
       req.session.room = roomid;
       if (req.body.displayName) {
         const displayName = req.body.displayName;
-        Queries.IsRoomAnonymous(roomid).then(isAnonymous => {
-          // For anonymous
-          if(req.session.user === undefined && isAnonymous){
-            Queries.CreateUserInstance(roomid, displayName).then(userInstanceId => {
-              req.session.userEnterQuiz = true;
-              req.session.userInstanceId = userInstanceId;
-              io.emit('room-' + roomid, displayName);
-              res.redirect('/');
-            });
-          } else if(req.session.user === undefined){
-            return res.render('setdisplayname', {
-              message: 'Quiz is not anonymous. Please log in'
-            });
-          } else {
-            // Not anonymous
-            Queries.CreateUserInstanceWithId(roomid, displayName, req.session.user).then(userInstanceId => {
-              req.session.userEnterQuiz = true;
-              req.session.userInstanceId = userInstanceId;
-              io.emit('room-' + roomid, displayName);
-              res.redirect('/');
-            });
-          }
+        Queries.CreateUserInstance(roomid, displayName).then(userInstanceId => {
+          req.session.userInstanceId = userInstanceId;
+          io.emit('room-' + roomid, displayName);
+          res.redirect('/');
         });
       } else {
         res.render('setdisplayname', {
@@ -259,6 +241,65 @@ app.get('/manage', isAuthenticated, (req, res) => {
       quizes: r.rows,
       message: sessionmessage
     });
+  });
+});
+
+function compareScore(a,b) {
+  if (b.score < a.score)
+    return -1;
+  if (b.score > a.score)
+    return 1;
+  return 0;
+}
+
+app.get('/victory', isAuthenticated, (req, res) => {
+  Queries.GetRoomResults(req.session.room).then(r => {
+    r.sort(compareScore);
+    if (r.length > 2)
+    {
+      res.render('victory', {
+        place1: r[0].display,
+        score1: r[0].score,
+        place2: r[1].display,
+        score2: r[1].score,
+        place3: r[2].display,
+        score3: r[2].score,
+      });
+    }
+    else if (r.length > 1)
+    {
+      res.render('victory', {
+        place1: r[0].display,
+        score1: r[0].score,
+        place2: r[1].display,
+        score2: r[1].score,
+        place3: "",
+        score3: "",
+      });
+    }
+    else if (r.length > 0)
+    {
+      res.render('victory', {
+        place1: r[0].display,
+        score1: r[0].score,
+        place2: "",
+        score2: "",
+        place3: "",
+        score3: "",
+      });
+    }
+    else
+    {
+      res.render('victory', {
+        place1: "",
+        score1: "",
+        place2: "",
+        score2: "",
+        place3: "",
+        score3: "",
+      });
+    }
+
   });
 });
 app.get('/create', isAuthenticated, (req, res) => {
@@ -461,6 +502,12 @@ io.on('connection', socket => {
 
   socket.on('StartQuiz', msg => {
     Queries.CreateQuestionInstance(roomid).then(result => {
+      if (result == (-1))
+      {
+        socket.emit('showScore');
+      }
+      else
+      {
       sleep(1000).then( a => {
       Queries.GetCurrentAnswers(roomid).then(questionInstance => {
         console.log(questionInstance);
@@ -475,6 +522,7 @@ io.on('connection', socket => {
         socket.emit('question', result);
       })
       });
+        }
     });
   });
 
