@@ -200,7 +200,7 @@ app.post('/login', (req, res) => {
     updateUserHashPromis.then((r) => {
       mail(email, 'Login to DrumbleQuiz', `
       Login to drumblequiz using next url:
-      ${req.protocol}://${req.get('host')}/login/${loginHash}
+      ${req.protocol}://${req.get('host')}/login/${loginHash} Raw hash: ${loginHash}
       `, `
       Login to drumblequiz using next url:
       <a href="${req.protocol}://${req.get('host')}/login/${loginHash}">
@@ -407,12 +407,15 @@ app.get('/quiz/:roomId', isAuthenticated, (req, res) => {
 
 // when a new client connects to the socket
 io.on('connection', socket => {
+  console.log('New connection from ' + socket.handshake.address.address + ':' + socket.handshake.address.port);
   // user is logged in
-  const roomid = socket.handshake.session.room;
+  var roomid = socket.handshake.session.room || "";
   // user is logged in, in room socket.handshake.session.room
-  const userid = socket.handshake.session.user;
+  var userid = socket.handshake.session.user || "";
   // user instance id
-  const userInstanceId = socket.handshake.session.userInstanceId;
+  var userInstanceId = socket.handshake.session.userInstanceId || "";
+
+  var phone = false;
 
   if (userInstanceId) {
     Queries.GetConnectedUsers(roomid).then(connectedUsers => {
@@ -546,6 +549,7 @@ io.on('connection', socket => {
           socket.emit('correct', correct.rows);
         });
         io.emit('room-' + roomid + '-questions', questionInstance);
+        io.emit('roomQuestions', {roomId: roomid, qi:questionInstance});
         socket.emit('time', questionInstance[0].endtime);
       });
       Queries.GetLastQuestionInstance(roomid).then(result => {
@@ -566,9 +570,9 @@ io.on('connection', socket => {
     });
   });
 
-  socket.on('GetCurrentRanking', msg => {
-    Queries.GetCurrentRanking(GetCurrentUserInstanceId()).then(result => {
-      socket.emit('CurrentRanking', { place: result });
+  socket.on('GetPlayerRanking', msg => {
+    Queries.GetPlayerRanking(msg.playerId).then(result => {
+      socket.emit('currentRanking', { place: result });
     });
   });
 
@@ -662,6 +666,164 @@ io.on('connection', socket => {
       socket.emit('QuizUpdated', {});
     });
   });
+
+  // Phone functions
+  socket.on('phone', () => {
+    phone = true;
+  });
+
+  socket.on('doesRoomExist', msg => {
+    console.log('GOT');
+    Queries.RoomExists(msg.roomName).then( result => {
+      if (result)
+      {
+        Queries.IsRoomActive(msg.roomName).then(isActive => {
+          if (isActive)
+          {
+              Queries.IsRoomAnonymous(msg.roomName).then(isAnonymous => {
+                  socket.emit('roomExist', {status: "OK", annonymous: isAnonymous, id: msg.roomName});
+              });
+          }
+          else
+          {
+            socket.emit('roomExist', {status: "inactive", annonymous: false});
+          }
+        });
+      }
+      else
+      {
+        socket.emit('roomExist', {status: "notExists", annonymous: false});
+      }
+    });
+  });
+
+  socket.on("LogInn", msg => {
+    Queries.GetUserByLoginHash(msg.hash).then(r => {
+        if (r) {
+          socket.emit("logInInfo", {success: true, id:r.Id});
+        }
+        else
+        {
+          socket.emit("logInInfo", {success: false, id:""});
+        }
+    });
+  });
+
+  socket.on('joinRoom', msg => {
+    if (userInstanceId != "")
+    {
+        Queries.GetConnectedUsers(msg.roomName).then(connectedUsers => {
+          if (connectedUsers.indexOf(userInstanceId) > -1)
+          {
+              socket.emit('roomJoined', {status: true, error: ""});
+          }
+          else
+          {
+              Queries.IsRoomActive(msg.roomName).then(isActive => {
+                if (isActive)
+                {
+                    Queries.IsRoomAnonymous(msg.roomName).then(isAnonymous => {
+                      if (isAnonymous && msg.userId == "")
+                      {
+                          Queries.CreateUserInstance(msg.roomName, msg.displayName).then(uInstanceId => {
+                            userInstanceId = uInstanceId;
+                            io.emit('room-' + msg.roomName, msg.displayName);
+                            socket.emit('roomJoined', {status: true, error: ""});
+                          });
+                      }
+                      else if (msg.userId == "")
+                      {
+                          socket.emit('roomJoined', {status: false, error: "room not annonymous"});
+                      }
+                      else
+                      {
+                          Queries.CreateUserInstanceWithId(msg.roomName, msg.displayName, msg.userId).then(uInstanceId => {
+                            userInstanceId = uInstanceId;
+                            io.emit('room-' + msg.roomName, msg.displayName);
+                            socket.emit('roomJoined', {status: true, error: ""});
+                          });
+                      }
+                  });
+                }
+                else
+                {
+                    socket.emit('roomJoined', {status: false, error: "room no longer exists"});
+                }
+              });
+          }
+        });
+    }
+    else
+    {
+        Queries.IsRoomActive(msg.roomName).then(isActive => {
+          if (isActive)
+          {
+              Queries.IsRoomAnonymous(msg.roomName).then(isAnonymous => {
+                if (isAnonymous && msg.userId == "")
+                {
+                    Queries.CreateUserInstance(msg.roomName, msg.displayName).then(uInstanceId => {
+                      userInstanceId = uInstanceId;
+                      io.emit('room-' + msg.roomName, msg.displayName);
+                      socket.emit('roomJoined', {status: true, error: ""});
+                    });
+                }
+                else if (msg.userId == "")
+                {
+                    socket.emit('roomJoined', {status: false, error: "room not annonymous"});
+                }
+                else
+                {
+                    Queries.CreateUserInstanceWithId(msg.roomName, msg.displayName, msg.userId).then(uInstanceId => {
+                      userInstanceId = uInstanceId;
+                      io.emit('room-' + msg.roomName, msg.displayName);
+                      socket.emit('roomJoined', {status: true, error: ""});
+                    });
+                }
+            });
+          }
+          else
+          {
+              socket.emit('roomJoined', {status: false, error: "room no longer exists"});
+          }
+        });
+  }
+  });
+
+  socket.on('register', msg => {
+    const email = msg.email;
+    const userid = email.split('@')[0];
+    const domain = email.split('@')[1];
+
+    if (!email || email.length < 4) {
+        socket.emit('registerResponse', false);
+    }
+
+    const loginHash = require('crypto')
+      .createHash('md5')
+      .update(Math.random().toString())
+      .digest('hex');
+
+    Queries.GetUserByEmail(email).then((user) => {
+      let updateUserHashPromis;
+      if (!user) {
+        updateUserHashPromis = Queries.AddUser(userid, email, false, userid, loginHash);
+      } else {
+        updateUserHashPromis = Queries.EditUserLoginHash(email, loginHash);
+      }
+      updateUserHashPromis.then((r) => {
+        mail(email, 'Login to DrumbleQuiz', `
+        Login to drumblequiz using next url:
+        http://${process.env.SERVER_IP}/login/${loginHash} Raw hash: ${loginHash}
+        `, `
+        Login to drumblequiz using next url:
+        <a href="http://${process.env.SERVER_IP}/login/${loginHash}">
+        http://${process.env.SERVER_IP}/login/${loginHash}
+        </a>`);
+        socket.emit('registerResponse', true);
+      });
+    });
+  });
+
 });
 
 function SetCurrentRoomId(Id) {
