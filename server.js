@@ -579,7 +579,7 @@ io.on('connection', socket => {
   });
 
   socket.on('GetPlayerRanking', msg => {
-    Queries.GetPlayerRanking(msg.playerId).then(result => {
+    Queries.GetPlayerRanking(userInstanceId).then(result => {
       socket.emit('currentRanking', { place: result });
     });
   });
