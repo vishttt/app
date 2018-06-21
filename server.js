@@ -805,33 +805,34 @@ io.on('connection', socket => {
     if (!email || email.length < 4) {
         socket.emit('registerResponse', false);
     }
+    else
+    {
+      const loginHash = require('crypto')
+        .createHash('md5')
+        .update(Math.random().toString())
+        .digest('hex');
 
-    const loginHash = require('crypto')
-      .createHash('md5')
-      .update(Math.random().toString())
-      .digest('hex');
-
-    Queries.GetUserByEmail(email).then((user) => {
-      let updateUserHashPromis;
-      if (!user) {
-        updateUserHashPromis = Queries.AddUser(userid, email, false, userid, loginHash);
-      } else {
-        updateUserHashPromis = Queries.EditUserLoginHash(email, loginHash);
-      }
-      updateUserHashPromis.then((r) => {
-        mail(email, 'Login to DrumbleQuiz', `
-        Login to drumblequiz using next url:
-        http://${process.env.SERVER_IP}/login/${loginHash} Raw hash: ${loginHash}
-        `, `
-        Login to drumblequiz using next url:
-        <a href="http://${process.env.SERVER_IP}/login/${loginHash}">
-        http://${process.env.SERVER_IP}/login/${loginHash}
-        </a>`);
-        socket.emit('registerResponse', true);
+      Queries.GetUserByEmail(email).then((user) => {
+        let updateUserHashPromis;
+        if (!user) {
+          updateUserHashPromis = Queries.AddUser(userid, email, false, userid, loginHash);
+        } else {
+          updateUserHashPromis = Queries.EditUserLoginHash(email, loginHash);
+        }
+        updateUserHashPromis.then((r) => {
+          mail(email, 'Login to DrumbleQuiz', `
+          Login to drumblequiz using next url:
+          http://${process.env.SERVER_IP}/login/${loginHash} Raw hash: ${loginHash}
+          `, `
+          Login to drumblequiz using next url:
+          <a href="http://${process.env.SERVER_IP}/login/${loginHash}">
+          http://${process.env.SERVER_IP}/login/${loginHash}
+          </a>`);
+          socket.emit('registerResponse', true);
+        });
       });
-    });
+    }
   });
-
 });
 
 function SetCurrentRoomId(Id) {
