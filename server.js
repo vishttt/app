@@ -539,24 +539,32 @@ io.on('connection', socket => {
       if (result == (-1))
       {
         socket.emit('showScore');
+        io.emit('showFinalScore', {roomId: roomid});
       }
       else
       {
       sleep(1000).then( a => {
-      Queries.GetCurrentAnswers(roomid).then(questionInstance => {
-        const questionInstanceId = questionInstance[0].QuestionInstanceId;
-        Queries.GetCorrectAnswers(questionInstanceId).then(correct => {
-          socket.emit('correct', correct.rows);
-        });
-        io.emit('room-' + roomid + '-questions', questionInstance);
-        io.emit('roomQuestions', {roomId: roomid, qi:questionInstance});
-        socket.emit('time', questionInstance[0].endtime);
-      });
-      Queries.GetLastQuestionInstance(roomid).then(result => {
-        socket.emit('question', result);
-      });
+          Queries.GetCurrentAnswers(roomid).then(questionInstance => {
+            const questionInstanceId = questionInstance[0].QuestionInstanceId;
+            Queries.GetCorrectAnswers(questionInstanceId).then(correct => {
+              socket.emit('correct', correct.rows);
+            });
+            io.emit('serverTime', {roomId: roomid, time: new Date()});
+            io.emit('room-' + roomid + '-questions', questionInstance);
+            io.emit('roomQuestions', {roomId: roomid, qi:questionInstance});
+            socket.emit('time', questionInstance[0].endtime);
+          });
+          Queries.GetLastQuestionInstance(roomid).then(result => {
+            socket.emit('question', result);
+          });
       });
         }
+    });
+  });
+
+  socket.on('getCorrectAnswer', qInstId => {
+    Queries.GetCorrectAnswers(qInstId).then(correct => {
+      socket.emit('correct', correct.rows);
     });
   });
 
