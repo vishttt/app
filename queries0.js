@@ -1,6 +1,6 @@
 (function() {
   require('dotenv').config();
-  const schema = process.env.DB_SCHEMA;
+
   let dbclient;
 
   //Exports
@@ -10,39 +10,30 @@
     },
 
     GetUserByEmail: async (email) => {
-      return dbclient.query(
-        `SELECT "Id", "CanCreateQuiz" FROM "${schema}"."User" WHERE email = $1`, [email]).then((res) => {
-          return res.rows[0]
-        }).catch(e => {
-          console.error('error at GetUserByEmail', email, e.stack);
+      var sql = `SELECT "Id", "CanCreateQuiz" FROM "User" WHERE email = '${email}'`;
+        dbclient.query(sql, function(err, results) {
+          if (err) throw err;
+          return results.rows[0];
         });
     },
-    GetUserByLoginHash: async (loginHash) => {
-      return dbclient.query(
-        `SELECT "Id", "CanCreateQuiz" FROM "${schema}"."User" WHERE "loginHash" = $1`,
-        [loginHash]).then((res) => {
-          console.log(res);
-          return res.rows[0]
-        }).catch(e => {
-          console.error('error at GetUserByLoginHash', loginHash, e.stack);
-        });
+
+    GetUserByLoginHash:function(loginHash,callback) {
+      var sql = "SELECT Id, CanCreateQuiz FROM User WHERE loginHash = ?";
+      return  dbclient.query(sql,[loginHash], callback);
     },
     AddUser: async (Id, email, canCreateQuiz, username, loginHash) => {
-      return dbclient.query(
-        `INSERT INTO "${schema}"."User"("Id", "email", "CanCreateQuiz", "loginHash") VALUES ($1, $2, $3, $4) RETURNING "Id"`,
-        [Id, email, canCreateQuiz, loginHash]).then((res) => {
-          return res.rows[0]
-        }).catch(e => {
-          console.error('error at AddUser', email, e.stack);
+      var sql = `INSERT INTO "User" ("Id", "email", "CanCreateQuiz", "loginHash") VALUES ('${Id}', '${email}', '${canCreateQuiz}', '${loginHash}')`;
+        dbclient.query(sql, function(err, results) {
+          if (err) throw err;
+          return results.rows[0];
         });
+
     },
     EditUserLoginHash: async (email, loginHash) => {
-      return dbclient.query(
-        `UPDATE "${schema}"."User" SET "loginHash" = $2 WHERE "email" = $1`,
-        [email, loginHash]).then((res) => {
-          return res.rows[0]
-        }).catch(e => {
-          console.error('error at AddUser', email, e.stack);
+      var sql = `UPDATE "User" SET "loginHash" = '${loginHash}' WHERE "email" = '${email}' `;
+        dbclient.query(sql, function(err, results) {
+          if (err) throw err;
+          return results.rows[0];
         });
     },
     AddQuestion: async function(
@@ -56,14 +47,14 @@
       return dbclient.query('BEGIN').then(async () => {
         return dbclient
           .query(
-            `INSERT INTO "${schema}"."Question"("Title", "Content", "Time") VALUES ($1, $2, $3) RETURNING "Id"`,
+            `INSERT INTO "Question"("Title", "Content", "Time") VALUES ($1, $2, $3) RETURNING "Id"`,
             [title, question, time]
           )
           .then(async res => {
             for (var i = 0; i < questionArray.length; i++) {
               await dbclient
                 .query(
-                  `INSERT INTO "${schema}"."Answer"("QuestionId", "Content", "IsCorrect") VALUES ($1, $2, $3)`,
+                  `INSERT INTO "Answer"("QuestionId", "Content", "IsCorrect") VALUES ($1, $2, $3)`,
                   [
                     res.rows[0].Id,
                     questionArray[i].answer,
@@ -77,7 +68,7 @@
 
             return dbclient
               .query(
-                `INSERT INTO "${schema}"."QuizQuestion"("QuestionId", "QuizId", "OrderNr") VALUES ($1, $2, $3) RETURNING "OrderNr"`,
+                `INSERT INTO "QuizQuestion"("QuestionId", "QuizId", "OrderNr") VALUES ($1, $2, $3) RETURNING "OrderNr"`,
                 [res.rows[0].Id, quizId, orderNr]
               )
               .then(result => {
@@ -93,7 +84,7 @@
     EditQuestion: async function(Id, title, question, time) {
       return dbclient
         .query(
-          `UPDATE "${schema}"."Question" SET "Title"=$1, "Content"=$2, "Time"=$3 WHERE "Id"=$4`,
+          `UPDATE "Question" SET "Title"=$1, "Content"=$2, "Time"=$3 WHERE "Id"=$4`,
           [title, question, time, Id]
         )
         .then(res => {
@@ -104,7 +95,7 @@
     EditAnswer: async function(Id, answer, answerIsTrue) {
       return dbclient
         .query(
-          `UPDATE "${schema}"."Answer" SET "Content"=$1, "IsCorrect"=$2 WHERE "Id"=$3`,
+          `UPDATE "Answer" SET "Content"=$1, "IsCorrect"=$2 WHERE "Id"=$3`,
           [answer, answerIsTrue, Id]
         )
         .then(res => {
@@ -114,7 +105,7 @@
 
     DeleteAnswer: async function(Id) {
       return dbclient
-        .query(`DELETE FROM "${schema}"."Answer" WHERE "Id"=$1`, [Id])
+        .query(`DELETE FROM "Answer" WHERE "Id"=$1`, [Id])
         .catch(e => {
           console.error(e.stack);
         })
@@ -125,12 +116,12 @@
 
     AddAnswer: async function(Id, answer, answerIsTrue) {
       return dbclient
-        .query(`SELECT * FROM "${schema}"."Answer" WHERE "QuestionId"=$1`, [Id])
+        .query(`SELECT * FROM "Answer" WHERE "QuestionId"=$1`, [Id])
         .then(res => {
           if (res.rows.length < 4) {
             return dbclient
               .query(
-                `INSERT INTO "${schema}"."Answer"("QuestionId", "Content", "IsCorrect") VALUES ($1, $2, $3) RETURNING "Id"`,
+                `INSERT INTO "Answer"("QuestionId", "Content", "IsCorrect") VALUES ($1, $2, $3) RETURNING "Id"`,
                 [Id, answer, answerIsTrue]
               )
               .then(result => {
@@ -145,12 +136,12 @@
         .query(
           `SELECT subq1.expected > subq2.ended OR (subq2 IS NULL AND subq1.expected > 0) OR subq1 IS NULL as active
                                          FROM (SELECT rm."Id" as roomid, count(*) as expected
-                                       	 FROM "${schema}"."Room" as rm,
-                                      	 "${schema}"."QuizQuestion" as qq
+                                       	 FROM "Room" as rm,
+                                      	 "QuizQuestion" as qq
                                       	 WHERE rm."QuizId" = qq."QuizId"
                                       	 GROUP BY rm."Id") AS subq1
                                       	 LEFT JOIN (SELECT ended."RoomId" as roomid, sum(ended.count) AS ended
-                                      	 FROM "${schema}".room_ended_questions AS ended
+                                      	 FROM room_ended_questions AS ended
                                       	 GROUP BY ended."RoomId") AS subq2 ON subq2.roomid = subq1.roomid
                                       	 WHERE subq1.roomid = $1`,
           [Id]
@@ -175,8 +166,8 @@
       return dbclient
         .query(
           `SELECT "quiz"."IsAnonymous" as "anonymous"
-                          	FROM "${schema}"."Room" AS "room",
-                          	"${schema}"."Quiz" AS "quiz"
+                          	FROM "Room" AS "room",
+                          	"Quiz" AS "quiz"
                           	WHERE "room"."QuizId" = "quiz"."Id"
                           	AND "room"."Id" = $1`,
           [Id]
@@ -200,7 +191,7 @@
     GetRoomResults: async function(Id) {
       return dbclient
         .query(
-          `SELECT userid, display, score FROM "${schema}".user_scores WHERE roomid = $1`,
+          `SELECT userid, display, score FROM user_scores WHERE roomid = $1`,
           [Id]
         )
         .then(res => {
@@ -214,7 +205,7 @@
     RoomExists: async function(Id) {
       return dbclient
         .query(
-          `SELECT room."Id" IS NOT NULL AS exists FROM "${schema}"."Room" AS room WHERE room."Id" = $1`,
+          `SELECT room."Id" IS NOT NULL AS exists FROM "Room" AS room WHERE room."Id" = $1`,
           [Id]
         )
         .then(res => {
@@ -236,7 +227,7 @@
     QuizExists: async function(Id) {
       return dbclient
         .query(
-          `SELECT quiz."Id" IS NOT NULL AS exists FROM "${schema}"."Quiz" AS quiz WHERE quiz."Id" = $1`,
+          `SELECT quiz."Id" IS NOT NULL AS exists FROM "Quiz" AS quiz WHERE quiz."Id" = $1`,
           [Id]
         )
         .then(res => {
@@ -261,7 +252,7 @@
           if (result === false && result2 === true) {
             dbclient
               .query(
-                `INSERT INTO "${schema}"."Room"( "Id", "QuizId") VALUES ($1, $2)`,
+                `INSERT INTO "Room"( "Id", "QuizId") VALUES ($1, $2)`,
                 [roomId, quizId]
               )
               .catch(e => {
@@ -281,17 +272,17 @@
       return dbclient
         .query(
           `WITH nextq AS (SELECT room."Id" as room_id, qq."QuestionId" AS next_question_id
-                                	 FROM "${schema}"."Room" AS room
-                                	 ,"${schema}"."QuizQuestion" AS qq
+                                	 FROM "Room" AS room
+                                	 ,"QuizQuestion" AS qq
                                 	 WHERE room."Id" = $1
                                 	 AND room."QuizId" = qq."QuizId"
                                  	ORDER BY qq."OrderNr" ASC
                                  	LIMIT 1 OFFSET (SELECT COALESCE(SUM(req."count"), 0)
-                                	FROM "${schema}"."Room" AS rm
-                                	LEFT JOIN "${schema}".room_ended_questions AS req ON rm."Id" = req."RoomId"
+                                	FROM "Room" AS rm
+                                	LEFT JOIN room_ended_questions AS req ON rm."Id" = req."RoomId"
                                 	WHERE rm."Id" = $1
                                 	GROUP BY rm."Id"))
-                                  INSERT INTO "${schema}"."QuestionInstance" ("QuestionId", "TimeStamp", "RoomId", "Duration")
+                                  INSERT INTO "QuestionInstance" ("QuestionId", "TimeStamp", "RoomId", "Duration")
                                 	SELECT next_question_id, now(), room_id, NULL
                                 	FROM nextq RETURNING "Id"`,
           [roomId]
@@ -313,9 +304,9 @@
         return dbclient
           .query(
             `SELECT question."Content" AS question,  answer."Content" AS answer, answer."Id" as answerid
-                                   	 FROM "${schema}"."QuestionInstance" AS qi,
-                                   	 "${schema}"."Question" AS question,
-                                  	 "${schema}"."Answer" AS answer
+                                   	 FROM "QuestionInstance" AS qi,
+                                   	 "Question" AS question,
+                                  	 "Answer" AS answer
                                   	 WHERE qi."Id" = $1
                                   	 AND qi."QuestionId" = question."Id"
                                   	 AND answer."QuestionId" = qi."QuestionId"`,
@@ -331,7 +322,7 @@
       return dbclient
         .query(
           `SELECT "Id" AS last_question_id
-                                  FROM "${schema}"."QuestionInstance"
+                                  FROM "QuestionInstance"
                                   WHERE "RoomId" = $1
                                   ORDER BY "TimeStamp" DESC
                                   FETCH FIRST ROW ONLY`,
@@ -345,7 +336,7 @@
     StopQuestionTime: async function(questionInstanceId) {
       dbclient
         .query(
-          `UPDATE "${schema}"."QuestionInstance" SET "Duration"=1 WHERE "Id"=$1`,
+          `UPDATE "QuestionInstance" SET "Duration"=1 WHERE "Id"=$1`,
           [questionInstanceId]
         )
         .then(res => {
@@ -357,12 +348,12 @@
       return dbclient
         .query(
           `SELECT COALESCE(COUNT(*) + 1,1) AS place
-                            FROM "${schema}"."UserInstance" AS useri,
+                            FROM "UserInstance" AS useri,
                             (SELECT uinst."Id" AS userid, scores.display, scores.score
-                            FROM "${schema}".user_scores AS scores,
-                            "${schema}"."UserInstance" AS uinst
+                            FROM user_scores AS scores,
+                            "UserInstance" AS uinst
                             WHERE scores.roomid = uinst."RoomId") AS room_scores,
-                            "${schema}".user_scores AS user_score
+                            user_scores AS user_score
                             WHERE room_scores.userid = useri."Id"
                             AND user_score.userid = useri."Id"
                             AND room_scores.score > user_score.score
@@ -377,7 +368,7 @@
     CreateUserInstance: async function(roomId, nickname) {
       return dbclient
         .query(
-          `INSERT INTO "${schema}"."UserInstance"( "DisplayName", "RoomId") VALUES ($1, $2) RETURNING "Id"`,
+          `INSERT INTO "UserInstance"( "DisplayName", "RoomId") VALUES ($1, $2) RETURNING "Id"`,
           [nickname, roomId]
         )
         .then(res => {
@@ -388,7 +379,7 @@
     CreateUserInstanceWithId: async function(roomId, nickname, Id) {
       return dbclient
         .query(
-          `INSERT INTO "${schema}"."UserInstance"( "DisplayName", "UserId", "RoomId") VALUES ($1, $2, $3) RETURNING "Id"`,
+          `INSERT INTO "UserInstance"( "DisplayName", "UserId", "RoomId") VALUES ($1, $2, $3) RETURNING "Id"`,
           [nickname, Id, roomId]
         )
         .then(res => {
@@ -402,12 +393,12 @@
           `SELECT ecount - ccount AS remaining
                             FROM
                             (SELECT COALESCE(COUNT(*), 0) as ccount
-                            FROM "${schema}"."QuestionInstance" AS qi
+                            FROM "QuestionInstance" AS qi
                             WHERE qi."RoomId" = $1
                             GROUP BY qi."RoomId") AS created,
                             (SELECT COALESCE(COUNT(*), 0) as ecount
-                            FROM "${schema}"."QuizQuestion" AS qq,
-                            "${schema}"."Room" AS room
+                            FROM "QuizQuestion" AS qq,
+                            "Room" AS room
                             WHERE room."Id" = $1
                             AND room."QuizId" = qq."QuizId") AS expected`,
           [roomId]
@@ -422,10 +413,10 @@
         return dbclient
           .query(
             `SELECT answer."Id" AS answer_id, COALESCE(votes.count, 0) AS answer_count
-                                       FROM "${schema}"."QuestionInstance" AS qi,
-                                       "${schema}"."Answer" AS answer
+                                       FROM "QuestionInstance" AS qi,
+                                       "Answer" AS answer
                                        LEFT JOIN 	(	SELECT count(*) as count, "QuestionInstanceId" AS qiid, "AnswerId" AS ansid
-                                       FROM "${schema}"."AnswerInstance"
+                                       FROM "AnswerInstance"
                                        GROUP BY "QuestionInstanceId", "AnswerId"
                                        ) AS votes ON votes.ansid = answer."Id"
                                        WHERE qi."QuestionId" = answer."QuestionId"
@@ -442,7 +433,7 @@
     GetConnectedUsers: async function(roomId) {
       return dbclient
         .query(
-          `SELECT "Id" as id, "DisplayName" as display FROM "${schema}"."UserInstance" WHERE "UserInstance"."RoomId" = $1`,
+          `SELECT "Id" as id, "DisplayName" as display FROM "UserInstance" WHERE "UserInstance"."RoomId" = $1`,
           [roomId]
         )
         .then(res => {
@@ -457,10 +448,10 @@
         a."Id" "AnswerId",
         a."Content" "Answer",
         aqpr.endtime
-        from "${schema}".active_questions_per_room aqpr
-        inner join "${schema}"."QuestionInstance" qi
+        from active_questions_per_room aqpr
+        inner join "QuestionInstance" qi
         on (qi."Id" = aqpr.questioninstanceid)
-        inner join "${schema}"."Answer" a
+        inner join "Answer" a
         on (qi."QuestionId" = a."QuestionId")
         where aqpr."RoomId" = $1`,
         [roomId]).then(res => {
@@ -476,7 +467,7 @@
     GetAllQuizzes: async function(userId) {
       return dbclient
         .query(
-          `SELECT "Id", "Name", "IsAnonymous" FROM "${schema}"."Quiz" WHERE "Quiz"."OwnerUserId" = $1`,
+          `SELECT "Id", "Name", "IsAnonymous" FROM "Quiz" WHERE "Quiz"."OwnerUserId" = $1`,
           [userId]
         )
         .then(res => {
@@ -487,7 +478,7 @@
     GetQuizInfo: async function(quizId) {
       return dbclient
         .query(
-          `SELECT "Name" as name, "IsAnonymous" AS anonimity FROM "${schema}"."Quiz" WHERE "Id" = $1`,
+          `SELECT "Name" as name, "IsAnonymous" AS anonimity FROM "Quiz" WHERE "Id" = $1`,
           [quizId]
         )
         .then(res => {
@@ -499,8 +490,8 @@
       return dbclient
         .query(
           `SELECT q."Id" AS id, q."Title" AS title, q."Content" AS content, qq."OrderNr" as order,
-                                  q."Time" AS time FROM "${schema}"."QuizQuestion" AS qq,
-                                  "${schema}"."Question" AS q
+                                  q."Time" AS time FROM "QuizQuestion" AS qq,
+                                  "Question" AS q
                                   WHERE qq."QuizId" = $1
                                   AND qq."QuestionId" = q."Id"
                                   GROUP BY q."Id", q."Title", q."Content", q."Time", qq."OrderNr"`,
@@ -515,8 +506,8 @@
       return dbclient
         .query(
           `SELECT a."Id" AS id, a."QuestionId" as question, a."Content" as content, a."IsCorrect" as correct
-                                   FROM "${schema}"."Answer" AS a,
-                                   "${schema}"."QuizQuestion" AS qq
+                                   FROM "Answer" AS a,
+                                   "QuizQuestion" AS qq
                                    WHERE qq."QuizId" = $1
                                    AND qq."QuestionId" = a."QuestionId"
                                    GROUP BY a."Id", a."QuestionId", a."Content", a."IsCorrect"`,
@@ -530,7 +521,7 @@
     CreateEmptyQuiz: async function(userId) {
       return dbclient
         .query(
-          `INSERT INTO "${schema}"."Quiz"("OwnerUserId")
+          `INSERT INTO "Quiz"("OwnerUserId")
                                    VALUES ($1)
                                    RETURNING "Id"`,
           [userId]
@@ -543,7 +534,7 @@
     CreateQuiz: async function(name, isAnonymous, userId) {
       return dbclient
         .query(
-          `INSERT INTO "${schema}"."Quiz"("Name", "IsAnonymous", "OwnerUserId")
+          `INSERT INTO "Quiz"("Name", "IsAnonymous", "OwnerUserId")
                                    VALUES ($1, $2, $3)
                                    RETURNING "Id"`,
           [name, isAnonymous, userId]
@@ -556,7 +547,7 @@
     DeleteQuiz: async function(Id) {
       return dbclient
         .query(
-          `DELETE FROM "${schema}"."Quiz"
+          `DELETE FROM "Quiz"
 	                                 WHERE "Id" = $1`,
           [Id]
         )
@@ -568,7 +559,7 @@
     UpdateQuiz: async function(Id, name, isAnonymous) {
       return dbclient
         .query(
-          `UPDATE "${schema}"."Quiz"
+          `UPDATE "Quiz"
                                    SET "Name"=$2, "IsAnonymous"=$3
                                    WHERE "Id"=$1`,
           [Id, name, isAnonymous]
@@ -582,8 +573,8 @@
       return dbclient
         .query(
           `SELECT answer."Id" AS answer_id, answer."Content" AS content
-                                   FROM "${schema}"."QuestionInstance" as qiid,
-                                   "${schema}"."Answer" as answer
+                                   FROM "QuestionInstance" as qiid,
+                                   "Answer" as answer
                                    WHERE qiid."QuestionId" = answer."QuestionId"
                                    AND answer."IsCorrect" = true
                                    AND qiid."Id" = $1`,
@@ -597,7 +588,7 @@
     DeleteUserInstance: async function(userInstanceId) {
       return dbclient
         .query(
-          `DELETE FROM "${schema}"."UserInstance"
+          `DELETE FROM "UserInstance"
                                 	 WHERE "Id" = $1`,
           [userInstanceId]
         )
@@ -613,11 +604,11 @@
     ) {
       return dbclient
         .query(
-          `INSERT INTO "${schema}"."AnswerInstance"("QuestionInstanceId", "AnswerId", "UserInstanceId")
+          `INSERT INTO "AnswerInstance"("QuestionInstanceId", "AnswerId", "UserInstanceId")
                                 	 SELECT COALESCE(aqpr.qiid,0) , $3 , $1
-                                	 FROM "${schema}"."Room" as room,
+                                	 FROM "Room" as room,
                                 	 (SELECT aqpr."RoomId", aqpr.questioninstanceid as qiid
-                                	 FROM "${schema}".active_questions_per_room AS aqpr) AS aqpr
+                                	 FROM active_questions_per_room AS aqpr) AS aqpr
                                 	 WHERE room."Id" = $2
                                    AND room."Id" = aqpr."RoomId"
                                 	 RETURNING "Id"`,
@@ -642,7 +633,7 @@
       return dbclient
         .query(
           `SELECT true AS hasquiz
-                                   FROM "${schema}"."Quiz"
+                                   FROM "Quiz"
                                    WHERE "OwnerUserId" = $1
                                    AND "Id" = $2`,
           [userId, quizId]

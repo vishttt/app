@@ -7,18 +7,27 @@ const DEBUG = process.env.DEBUG ? true : false;
 // f you timezone
 process.env.TZ = 'Europe/Brussels';
 
-const { Client } = require('pg');
+const mysql = require('mysql');
 const path = require('path');
 const express = require('express');
 const app = express();
 const http = require('http').Server(app);
 const bodyParser = require('body-parser');
 const io = require('socket.io')(http);
-const Queries = require('./queries.js');
+// get config from env, check .env (or .env.example)
+const dbConfig = {
+  host:  process.env.DB_MYSQL_HOST,
+  user: process.env.DB_MYSQL_USER,
+  password: process.env.DB_MYSQL_PASS,
+  database: process.env.DB_MYSQL_DB
+};
+const dbclient = mysql.createConnection(dbConfig);
+
+const Queries = require('./queries0.js');
+Queries.SetDbClient(dbclient);
 
 var exphbs = require('express-handlebars');
 
-const schema = process.env.DB_SCHEMA;
 const port = process.env.PORT || 3000;
 
 const mail = require('./mailer').mail;
@@ -54,29 +63,7 @@ app.use(session);
 // Share session with io sockets
 io.use(sharedsession(session));
 
-// get config from env, check .env (or .env.example)
-const dbConfig = {
-  connectionString: process.env.DB_URI
-};
-// if ssl allow unauthorized certificates
-if (dbConfig.connectionString.indexOf('ssl') !== -1) {
-  dbConfig.ssl = { rejectUnauthorized: true };
-}
-const dbclient = new Client(dbConfig);
-// connect to the PostgreSQL server
-dbclient.connect();
-Queries.SetDbClient(dbclient);
 
-// set correct timezone for queries to db
-dbclient.query(`set time zone 'Europe/Brussels';`);
-
-// listen on all watchers
-const query = dbclient.query('LISTEN watchers');
-
-// when a notification comes up show in console
-dbclient.on('notification', msg => {
-  io.emit('message', msg.payload);
-});
 
 // seperate router for api
 const apiRouter = require('./api');
@@ -141,20 +128,37 @@ app.get('/login/:loginHash', (req, res) => {
     });
   }
 
-  Queries.GetUserByLoginHash(loginHash).then(r => {
-    if (r) {
-      if (r.CanCreateQuiz) {
-        // this user can create and manage quizes
-        req.session.canCreateQuiz = true;
-      }
-      req.session.user = r.Id;
-      return res.redirect('/');
-    }
-    return res.render('login', {
-      hideUser: true,
-      message: 'invalid login hash'
-    });
-  });
+   Queries.GetUserByLoginHash(loginHash,function(err,rows){
+
+            if(err){
+              return res.render('login', {
+                hideUser: true,
+                message: 'invalid login hash'
+              });
+            }
+            else{
+              var r=rows[0];
+              if(!r){
+                return res.render('login', {
+                  hideUser: true,
+                  message: 'invalid login hash'
+                });
+              }
+              if (r.CanCreateQuiz) {
+                // this user can create and manage quizes
+                req.session.canCreateQuiz = true;
+              }
+              req.session.user = r.Id;
+              return res.redirect('/');
+            }
+        }
+
+
+
+   );
+
+
+
 });
 
 app.post('/login', (req, res) => {
